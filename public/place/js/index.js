@@ -51,6 +51,8 @@ function paint(e) {
 async function draw() {
     color = document.querySelector('#color').value;
 
+    ctx.clearRect(selectedPixel.x, selectedPixel.y, 1, 1);
+    
     ctx.fillStyle = color + "50";
     ctx.fillRect(selectedPixel.x, selectedPixel.y, 1, 1);
 
@@ -62,7 +64,8 @@ async function draw() {
         body: JSON.stringify({
             x: selectedPixel.x,
             y: selectedPixel.y,
-            color: color
+            color: color,
+            socketid: socket.id
         })
     });
 }

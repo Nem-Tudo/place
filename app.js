@@ -165,6 +165,11 @@ app.post("/api/pixel", middlewares.authenticated, functions.checkBody([
             min: 0,
             max: 10
         }
+    },
+    {
+        name: "socketid",
+        type: "string",
+        required: true
     }
 ]), async (req, res) => {
 
@@ -176,22 +181,32 @@ app.post("/api/pixel", middlewares.authenticated, functions.checkBody([
 
     if (config.canvas.allowedColors.length > 0 && !config.canvas.allowedColors.includes(req.body.color)) return res.status(422).send({ message: "422: Color not allowed" });
 
-    if (canvas.canvas[req.body.x][req.body.y].color === req.body.color) return res.status(422).send({ message: "422: Color already set" });
+    if (canvas.canvas[req.body.x][req.body.y].color === req.body.color) {
+        const socket = io.sockets.sockets.get(req.body.socketid);
+
+        socket.emit("pixelUpdate", {
+            x: req.body.x,
+            y: req.body.y,
+            color: req.body.color,
+            user: req.user.tag
+        })
+        return res.status(422).send({ message: "422: Color already set" });
+    }
 
     canvas.canvas[req.body.x][req.body.y] = {
         color: req.body.color,
-        user: "testes",
+        user: req.user.tag,
         timestamp: Date.now()
     };
 
     canvas.markModified(`canvas.${req.body.x}.${req.body.y}`);
-    await canvas.save();
+    canvas.save();
 
     io.emit("pixelUpdate", {
         x: req.body.x,
         y: req.body.y,
         color: req.body.color,
-        user: "testes"
+        user: req.user.tag
     });
     res.status(200).send({ message: `200: Pixel updated: x: ${req.body.x}, y: ${req.body.y}` });
 })
