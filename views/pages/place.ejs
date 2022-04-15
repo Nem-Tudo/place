@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/reset.css">
+    <link rel="stylesheet" href="/place/css/style.css">
+    <script src="https://cdn.socket.io/4.4.1/socket.io.min.js" integrity="sha384-fKnu0iswBIqkjxrhQCTZ7qlLHOFEgNkRmK2vaO/LbTZSXdJfAu6ewRBdwHPhBo/H" crossorigin="anonymous"></script>
+    <link rel="icon" href="/logo.png">
+    <script type="text/javascript" src="/place/js/wheel.js"></script>
+    <script type="text/javascript" src="/place/js/index.js"></script>
+    <script type="text/javascript" src="/place/js/socket.js"></script>
+    <title>Neon Place</title>
+</head>
+<body>
+    <%- include("../partials/header.ejs") %>
+    <main>
+        <div class="canvas" style="display: none; width: <%= width%>px; height: <%= height%>px">
+            <canvas id="canvas" width="<%= width%>" height="<%= height%>"></canvas>
+            <canvas id="select" style="width: <%= width%>px; height: <%= height%>px" width="<%= width * 10%>" height="<%= height * 10%>"></canvas>
+        </div>
+        <img class="spin" src="/spin.svg" alt="Loading">
+        <div class="bottom">
+            <input type="color" name="Cor" id="color">
+            <button class="bluebutton" id="drawpixel" onclick="draw()">Colocar pixel</button>
+        </div>
+    </main>
+</body>
+</html>

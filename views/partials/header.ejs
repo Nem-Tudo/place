@@ -1,0 +1,26 @@
+<head>
+    <link rel="stylesheet" href="/partials/header/css/style.css">
+    <script type="text/javascript" src="/partials/header/js/index.js"></script>
+</head>
+<header>
+    <img class="logo" src="/logo.png" alt="Neon Place logo" onclick="location.href='/'">
+
+    <div class="user">
+
+        <% if(locals.user) {%>
+
+            <p onclick="toggleUserPopup()"><%= locals.user.tag %></p>
+            <img onclick="toggleUserPopup()" src="<%= locals.user.avatar ? locals.user.avatarURL : "https://cdn.discordapp.com/embed/avatars/1.png"%> " alt="User logo">
+
+            <div class="popup popup-hidden" id="userpopup">
+                <div class="popup-content">
+                    <a href="/oauth2/logout">Sair</a>
+                </div>
+            </div>
+            <%} else {%>
+
+                <a href="/oauth2/login">Login</a>
+
+            <%}%>
+    </div>
+</header>
