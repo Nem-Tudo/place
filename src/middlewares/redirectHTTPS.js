@@ -6,7 +6,7 @@ module.exports = (req, res, next) => {
         const schema = req.headers["x-forwarded-proto"];
         
         if (schema != "https") {
-            res.redirect("https://" + req.get("host") + (req.originalUrl ? req.originalUrl : "/"))
+            return res.redirect("https://" + req.get("host") + (req.originalUrl ? req.originalUrl : "/"))
         }
     }catch(e){}
 
