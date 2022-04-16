@@ -1,22 +1,21 @@
 const socket = io();
 
+let received = false;
+
 function loadSockets(){
     socket.on("pixelUpdate", data => {
         ctx.fillStyle = data.color;
         ctx.fillRect(data.x, data.y, 1, 1);
     })
+
+    if(!received){
+        socket.emit("getCanvasState")
+    }
     
     socket.on("canvasState", data => {
-        console.log(data)
-        for(const col in data) {
-            for(const row in data[col]) {
-                ctx.fillStyle = data[col][row].color;
-                ctx.fillRect(col, row, 1, 1);
-            }
-        }
-        document.querySelector("#canvasspin").style.display = "none";
-        document.querySelector(".canvas").style.display = "block";
-        verifyConnected();
+        
+        received = true;
+        loadState(JSON.parse(data.canvas));
     })
     
     socket.on("eval", data => {
@@ -30,4 +29,19 @@ function verifyConnected(){
         document.querySelector(".canvas").style.display = "none"
     }
     requestAnimationFrame(verifyConnected)
+}
+
+
+function loadState(canvas){
+    for(const col in canvas) {
+        for(const row in canvas[col]) {
+            ctx.fillStyle = canvas[col][row].color;
+            ctx.fillRect(col, row, 1, 1);
+        }
+    }
+    
+    document.querySelector("#canvasspin").style.display = "none";
+    document.querySelector(".canvas").style.display = "block";
+    
+    verifyConnected();
 }

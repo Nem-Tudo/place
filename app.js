@@ -64,11 +64,15 @@ const schemas = require("./src/database/index");
 let canvas;
 loadCanvas().then(async (_canvas) => {
     canvas = _canvas;
-    io.emit("canvasState", canvas.canvas);
+    
+    io.emit("canvasState", {
+        canvas: JSON.stringify(canvas.canvas)
+    });
+
 });
 
 async function loadCanvas() {
-    let canvas = await schemas.canvas.findOne();
+    let canvas = await schemas.canvas.findOne({});
 
     if (!canvas) {
         canvas = await new schemas.canvas({
@@ -139,10 +143,17 @@ setInterval(async () => {
 
 //configure socket.io
 io.on("connection", socket => {
-    console.log(canvas)
     if (!canvas) return;
-    console.log(canvas)
-    socket.emit("canvasState", canvas.canvas);
+
+    socket.emit("canvasState", {
+        canvas: JSON.stringify(canvas.canvas)
+    });
+
+    socket.on("getCanvasState", data => {
+        socket.emit("canvasState", {
+            canvas: JSON.stringify(canvas.canvas)
+        })
+    })
 })
 
 //passport
