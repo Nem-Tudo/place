@@ -2,6 +2,7 @@ const Discordstrategy = require('passport-discord').Strategy
 const passport = require('passport');
 const config = require('../../config.js')
 const discordUser = require('../database/schemas/discordUser')
+const player = require('../database/schemas/player')
 
 passport.serializeUser((user, done) => {
     done(null, user)
@@ -33,6 +34,7 @@ try{
                 user.avatarURL = `${config.discord.cdn}${config.discord.avatar.path}/${profile.id}/${profile.avatar}${config.discord.avatar.extension}`;
                 await user.save()
     
+
                 return done(null, user);
             }
             
@@ -44,6 +46,8 @@ try{
                 avatarURL: `${config.discord.cdn}${config.discord.avatar.path}/${profile.id}/${profile.avatar}${config.discord.avatar.extension}`
             });
         
+            await new player({discordId: profile.id}).save()
+
             const savedUser = await newUser.save();
             done(null, savedUser);
         }catch(error){

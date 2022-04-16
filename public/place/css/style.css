@@ -15,7 +15,7 @@ main{
     position: absolute;
     margin: 100px;
 }
-.spin{
+#canvasspin{
     margin: 100px;
 }
 canvas {
@@ -41,11 +41,33 @@ body{
     align-items: center;
     width: 100vw;
     justify-content: center;
+    transition: transform 0.3s cubic-bezier(0, 0, 0.35, 1.38)
+}
+
+
+.bottom-hidden {
+    transform: translateY(200px)
 }
 
 #drawpixel{
     width: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center
 }
+
+#buttonspin{
+    width: 50px
+}
+
+[disabled]{
+    cursor: not-allowed;
+    opacity: .5;
+}
+[disabled]:hover{
+    transform: unset
+}
+
 
 #color{
     width: 70px;

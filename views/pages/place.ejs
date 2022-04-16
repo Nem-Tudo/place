@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="/reset.css">
     <link rel="stylesheet" href="/place/css/style.css">
     <script src="https://cdn.socket.io/4.4.1/socket.io.min.js" integrity="sha384-fKnu0iswBIqkjxrhQCTZ7qlLHOFEgNkRmK2vaO/LbTZSXdJfAu6ewRBdwHPhBo/H" crossorigin="anonymous"></script>
+    <script src="https://momentjs.com/downloads/moment.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.2/locale/pt-br.min.js" integrity="sha512-1IpxmBdyZx3okPiZ14mzw6+pOGa690uDmcdjqvT310Kwv3NRcjvL/aOtoSprEyvkDdAb7ZtM2um6KrLqLOY97w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <link rel="icon" href="/logo.png">
     <script type="text/javascript" src="/place/js/wheel.js"></script>
     <script type="text/javascript" src="/place/js/index.js"></script>
@@ -20,8 +22,8 @@
             <canvas id="canvas" width="<%= width%>" height="<%= height%>"></canvas>
             <canvas id="select" style="width: <%= width%>px; height: <%= height%>px" width="<%= width * 10%>" height="<%= height * 10%>"></canvas>
         </div>
-        <img class="spin" src="/spin.svg" alt="Loading">
-        <div class="bottom">
+        <img class="spin" id="canvasspin" src="/spin.svg" alt="Loading">
+        <div class="bottom bottom-hidden">
             <input type="color" name="Cor" id="color">
             <button class="bluebutton" id="drawpixel" onclick="draw()">Colocar pixel</button>
         </div>

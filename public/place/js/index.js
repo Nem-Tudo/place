@@ -3,14 +3,17 @@ let select;
 let ctx;
 let ctxSelect;
 let color;
+let oldColor;
+
 const selectedPixel = {
     x: null,
     y: null,
 }
 
 window.onload = () => {
-    loadWheel(document.querySelector(".canvas"))
-    loadCanvas()
+    loadWheel(document.querySelector(".canvas"));
+    loadCanvas();
+    loadSockets();
 }
 
 function loadCanvas() {
@@ -43,6 +46,9 @@ function paint(e) {
     ctxSelect.clearRect(x * 10, y * 10 + 2, -2, 6);
     ctxSelect.clearRect(x * 10 + 12, y * 10 + 2, -2, 6);
 
+    if(!selectedPixel.y){
+        document.querySelector(".bottom").classList.remove("bottom-hidden")
+    }
     selectedPixel.x = x;
     selectedPixel.y = y;
 
@@ -51,12 +57,21 @@ function paint(e) {
 async function draw() {
     color = document.querySelector('#color').value;
 
+    document.querySelector("#drawpixel").innerHTML = `<img class="spin" id="buttonspin" src="/spin.svg" alt="Loading">`
+    document.querySelector("#drawpixel").disabled = true;
+
+    oldColor = rgbToHex([
+        ctx.getImageData(selectedPixel.x, selectedPixel.y, 1, 1).data[0],
+        ctx.getImageData(selectedPixel.x, selectedPixel.y, 1, 1).data[1],
+        ctx.getImageData(selectedPixel.x, selectedPixel.y, 1, 1).data[2]
+    ]);
+    
     ctx.clearRect(selectedPixel.x, selectedPixel.y, 1, 1);
     
     ctx.fillStyle = color + "50";
     ctx.fillRect(selectedPixel.x, selectedPixel.y, 1, 1);
 
-    fetch('/api/pixel', {
+    const response = await fetch('/api/pixel', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -68,4 +83,41 @@ async function draw() {
             socketid: socket.id
         })
     });
+
+    if (response.status !== 200){
+        ctx.fillStyle = oldColor;
+        ctx.fillRect(selectedPixel.x, selectedPixel.y, 1, 1);
+    }
+
+    const responseJson = await response.json();
+
+    if(responseJson.timeout){
+        updateButtonTimeout(responseJson.timeout)
+    } else {
+        document.querySelector("#drawpixel").innerHTML = "Colocar pixel";
+        document.querySelector("#drawpixel").disabled = false;
+    }
+}
+
+
+function rgbToHex(rgb) {
+    return "#" + ((1 << 24) + (rgb[0] << 16) + (rgb[1] << 8) + rgb[2]).toString(16).slice(1);
+}
+
+function updateButtonTimeout(timeout){
+    const date = moment(timeout).locale("pt-br")
+    
+    const interval = setInterval(() => {
+        document.querySelector("#drawpixel").innerHTML = date.fromNow();
+    }, 1000);
+
+    setTimeout(() => {
+    
+        clearInterval(interval);
+
+        document.querySelector("#drawpixel").innerHTML = "Colocar pixel";
+
+        document.querySelector("#drawpixel").disabled = false;
+    
+    }, Date.now() - timeout)
 }

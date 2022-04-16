@@ -54,13 +54,16 @@ app.use(function (err, req, res, next) {
 app.set('view engine', 'ejs');
 app.use(express.static(path.join(__dirname, '/public')))
 
+//redirect to https
+app.use(middlewares.redirectHTTPS);
+
 //database
 const schemas = require("./src/database/index");
 
 //canvas
 let canvas;
-loadCanvas().then(async () => {
-    canvas = await schemas.canvas.findOne();
+loadCanvas().then(async (_canvas) => {
+    canvas = _canvas;
     io.emit("canvasState", canvas.canvas);
 });
 
@@ -73,6 +76,10 @@ async function loadCanvas() {
         }).save();
     }
 
+    if(true){
+        console.log("canvas preserved");
+        return canvas;
+    }
     console.log("generating canvas...");
 
     const state = await generateCanvas()
@@ -106,6 +113,29 @@ async function loadCanvas() {
         return await canvas.save()
     }
 }
+
+//save changes in database
+let modified = false;
+let _saving = false;
+
+setInterval(async () => {
+    
+    if(!modified) return;
+    
+    if(!canvas) return;
+    
+    if(_saving) return;
+
+    _saving = true;
+    
+    await canvas.save()
+    
+    _saving = false;
+    
+    modified = false;
+
+}, 5 * 1000)
+
 
 //configure socket.io
 io.on("connection", socket => {
@@ -180,9 +210,16 @@ app.post("/api/pixel", middlewares.authenticated, functions.checkBody([
     if (!functions.isColor(req.body.color)) return res.status(400).send({ message: "400: Invalid color" });
 
     if (config.canvas.allowedColors.length > 0 && !config.canvas.allowedColors.includes(req.body.color)) return res.status(422).send({ message: "422: Color not allowed" });
+            
+    const socket = io.sockets.sockets.get(req.body.socketid);
+        
+    if(!socket) return res.status(400).send({ message: "400: Invalid socket" });
+
+    const player = await schemas.player.findOne({discordId: req.user.discordId});
+
+    if(player.timeout !== 0 && player.timeout < Date.now()) return res.status(403).send({ message: `403: You need wait ${player.timeout - Date.now()}ms before you can place a new pixel.` });
 
     if (canvas.canvas[req.body.x][req.body.y].color === req.body.color) {
-        const socket = io.sockets.sockets.get(req.body.socketid);
 
         socket.emit("pixelUpdate", {
             x: req.body.x,
@@ -190,9 +227,24 @@ app.post("/api/pixel", middlewares.authenticated, functions.checkBody([
             color: req.body.color,
             user: req.user.tag
         })
+        
         return res.status(422).send({ message: "422: Color already set" });
     }
 
+    //timeout
+    if(config.canvas.timeout > 0){
+        if(!(config.settings.moderatorUsers.includes(req.user.discordId) || config.settings.adminUsers.includes(req.user.discordId))){
+            
+            player.timeout = Date.now() + config.canvas.timeout;
+        
+            await player.save();
+        }
+            
+    }
+
+    const timeout = player.timeout || 0;
+
+    //place pixel
     canvas.canvas[req.body.x][req.body.y] = {
         color: req.body.color,
         user: req.user.tag,
@@ -200,7 +252,7 @@ app.post("/api/pixel", middlewares.authenticated, functions.checkBody([
     };
 
     canvas.markModified(`canvas.${req.body.x}.${req.body.y}`);
-    canvas.save();
+    modified = true;
 
     io.emit("pixelUpdate", {
         x: req.body.x,
@@ -208,12 +260,26 @@ app.post("/api/pixel", middlewares.authenticated, functions.checkBody([
         color: req.body.color,
         user: req.user.tag
     });
-    res.status(200).send({ message: `200: Pixel updated: x: ${req.body.x}, y: ${req.body.y}` });
+
+    res.status(200).send({ timeout, message: `200: Pixel updated: x: ${req.body.x}, y: ${req.body.y}` });
 })
 
-//error event
-process.on("unhandledRejection", (error) => {
-    console.log(error)
+app.get("/api/player", middlewares.authenticated, async (req, res) => {
+
+    if (!functions.canJoin(req.user)) return res.status(403).send({ message: "403: You need to be on the following servers: " + config.settings.onlyInGuilds.join(", ") });
+
+    if (!canvas) return res.status(503).send({ message: "503: Service Unavailable" });
+
+    const player = await schemas.player.findOne({discordId: req.user.discordId});
+
+    if(!player) return res.status(404).send({ message: "404: Player not found" });
+
+    res.status(200).send({ 
+        discordId: player.discordId,
+        timeout: player.timeout,
+        banned: player.banned
+    });
+
 })
 
 //server listen

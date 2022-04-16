@@ -11,7 +11,8 @@ module.exports = {
     canvas: {
         height: 480,
         width: 480,
-        allowedColors: []
+        allowedColors: [],
+        timeout: 60 * 1000
     },
     oauth2: {
         clientID: "957266200616919041",
