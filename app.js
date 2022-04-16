@@ -139,7 +139,9 @@ setInterval(async () => {
 
 //configure socket.io
 io.on("connection", socket => {
+    console.log(canvas)
     if (!canvas) return;
+    console.log(canvas)
     socket.emit("canvasState", canvas.canvas);
 })
 
