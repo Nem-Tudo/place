@@ -64,7 +64,7 @@ const schemas = require("./src/database/index");
 let canvas;
 loadCanvas().then(async (_canvas) => {
     canvas = _canvas;
-    
+
     io.emit("canvasState", {
         canvas: JSON.stringify(canvas.canvas)
     });
@@ -230,7 +230,7 @@ app.post("/api/pixel", middlewares.authenticated, functions.checkBody([
 
     const player = await schemas.player.findOne({discordId: req.user.discordId});
 
-    if(player.timeout !== 0 && player.timeout < Date.now()) return res.status(403).send({ message: `403: You need wait ${player.timeout - Date.now()}ms before you can place a new pixel.` });
+    if(player.timeout != 0 && player.timeout < Date.now()) return res.status(403).send({ message: `403: You need wait ${player.timeout - Date.now()}ms before you can place a new pixel.` });
 
     if (canvas.canvas[req.body.x][req.body.y].color === req.body.color) {
 
@@ -245,17 +245,18 @@ app.post("/api/pixel", middlewares.authenticated, functions.checkBody([
     }
 
     //timeout
+    let playerState;
     if(config.canvas.timeout > 0){
         if(!(config.settings.moderatorUsers.includes(req.user.discordId) || config.settings.adminUsers.includes(req.user.discordId))){
             
             player.timeout = Date.now() + config.canvas.timeout;
         
-            await player.save();
+            playerState = await player.save();
         }
             
     }
 
-    const timeout = player.timeout || 0;
+    const timeout = playerState.timeout || 0;
 
     //place pixel
     canvas.canvas[req.body.x][req.body.y] = {

@@ -41,7 +41,6 @@ function loadWheel(zoom){
     zoom.onwheel = function (e) {
         e.preventDefault();
 
-        console.log(e.clientX, e.clientY);
         const xs = (e.clientX - pointX) / scale;
         const ys = (e.clientY - pointY) / scale;
         const delta = (e.wheelDelta ? e.wheelDelta : -e.deltaY);
