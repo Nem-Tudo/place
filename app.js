@@ -230,7 +230,7 @@ app.post("/api/pixel", middlewares.authenticated, functions.checkBody([
 
     const player = await schemas.player.findOne({discordId: req.user.discordId});
 
-    if(player.timeout != 0 && player.timeout < Date.now()) return res.status(403).send({ message: `403: You need wait ${player.timeout - Date.now()}ms before you can place a new pixel.` });
+    //if(player.timeout != 0 && player.timeout < Date.now()) return res.status(403).send({ message: `403: You need wait ${player.timeout - Date.now()}ms before you can place a new pixel.` });
 
     if (canvas.canvas[req.body.x][req.body.y].color === req.body.color) {
 
