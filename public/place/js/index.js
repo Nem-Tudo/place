@@ -100,6 +100,13 @@ async function draw() {
 }
 
 
+document.addEventListener("keypress", e => {
+    if(e.keyCode === 32){
+        draw();
+    }
+})
+
+
 function rgbToHex(rgb) {
     return "#" + ((1 << 24) + (rgb[0] << 16) + (rgb[1] << 8) + rgb[2]).toString(16).slice(1);
 }
