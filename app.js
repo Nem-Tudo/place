@@ -256,7 +256,7 @@ app.post("/api/pixel", middlewares.authenticated, functions.checkBody([
             
     }
 
-    const timeout = playerState.timeout || 0;
+    const timeout = playerState?.timeout || 0;
 
     //place pixel
     canvas.canvas[req.body.x][req.body.y] = {
