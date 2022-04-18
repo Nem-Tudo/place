@@ -232,7 +232,7 @@ app.post("/api/pixel", middlewares.authenticated, functions.checkBody([
 
     const player = await schemas.player.findOne({ discordId: req.user.discordId });
 
-    if (player.banned) return res.status(403).send({ bannned: true, message: "403: You are banned" });
+    if (player.banned.banned) return res.status(403).send({ bannned: true, message: "403: You are banned" });
 
     if (player.timeout != 0 && player.timeout > Date.now()) return res.status(403).send({ retryAfter: Math.abs(Date.now() - player.timeout), message: `403: You need wait ${Math.abs(Date.now() - player.timeout)}ms before you can place a new pixel.` });
 
