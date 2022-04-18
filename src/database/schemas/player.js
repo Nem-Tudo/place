@@ -13,9 +13,26 @@ const playerSchema = new mongoose.Schema(
         default: 0,
     },
     banned: {
+      banned: {
         type: Boolean,
         required: true,
         default: false,
+      },
+      reason: {
+        type: String,
+        required: true,
+        default: "",
+      },
+      bannedBy: {
+        type: String,
+        required: true,
+        default: "",
+      },
+      bannedAt: {
+        type: Date,
+        required: true,
+        default: Date.now()
+      }
     }
   }
 );

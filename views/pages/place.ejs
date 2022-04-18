@@ -18,14 +18,42 @@
 <body>
     <%- include("../partials/header.ejs") %>
     <main>
+        <div class="top-controls">
+            <div class="coord coord-hidden">
+                <p>(<span id="coordx">x</span>, <span id="coordy">y</span>) <span id="coordscale">1x</span></p>
+            </div>
+        </div>
         <div class="canvas" style="display: none; width: <%= width%>px; height: <%= height%>px">
             <canvas id="canvas" width="<%= width%>" height="<%= height%>"></canvas>
-            <canvas id="select" style="width: <%= width%>px; height: <%= height%>px" width="<%= width * 10%>" height="<%= height * 10%>"></canvas>
+            <canvas id="select" style="width: <%= width%>px; height: <%= height%>px" width="<%= width * 10%>" height="<%= height * 10%>"></canvas>;
         </div>
-        <img class="spin" id="canvasspin" src="/spin.svg" alt="Loading">
+        <div class="loading">
+            <img class="spin" id="canvasspin" src="/spin.svg" alt="Loading">
+            <h1 id="customLoadingMessage" style="display: none;">Carregando...</h1>
+        </div>
         <div class="bottom bottom-hidden">
             <input type="color" name="Cor" id="color">
             <button class="bluebutton" id="drawpixel" onclick="draw()">Colocar pixel</button>
+        </div>
+        <div class="pixelInfo pixelInfo-hidden ignorePixelInfoClose">
+            <div class="position ignorePixelInfoClose">
+                <p class="ignorePixelInfoClose">X: 0 Y: 0</p>
+            </div>
+            <img class="loading ignorePixelInfoClose" src="/spin.svg" alt="loading">
+            <div class="content ignorePixelInfoClose" style="display: none;">
+                <div class="color ignorePixelInfoClose">
+                    <div class="color-div ignorePixelInfoClose"></div>
+                    <span class="color-hex ignorePixelInfoClose"></span>
+                </div>
+                <div class="author ignorePixelInfoClose">
+                    <img class="author-avatar ignorePixelInfoClose" src="x" alt="author avatar">
+                    <span class="author-tag ignorePixelInfoClose" >Nem Tudo#4268</span>
+                </div>
+                <div class="date ignorePixelInfoClose">
+                    <span class="date-string ignorePixelInfoClose">18/04/2022 - 12:20</span>
+                </div>
+            </div>
+            <button onclick="selectColor()" class="copy-color ignorePixelInfoClose">Selecionar cor</button>
         </div>
     </main>
 </body>

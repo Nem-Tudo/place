@@ -59,6 +59,8 @@
                 if (typeof value.options.min != "undefined" && object[value.name] < value.options.min) return res.status(400).send({ message: `400: Parameter ${path}${value.name} must be greater than ${value.options.min}` });
 
                 if (typeof value.options.max != "undefined" && object[value.name] > value.options.max) return res.status(400).send({ message: `400: Parameter ${path}${value.name} must be less than ${value.options.max}` });
+
+                if(value.options.integer && object[value.name] % 1 !== 0) return res.status(400).send({ message: `400: Parameter ${path}${value.name} must be an integer` });
             }
 
         }

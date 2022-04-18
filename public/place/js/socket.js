@@ -13,7 +13,7 @@ function loadSockets(){
     }
     
     socket.on("canvasState", data => {
-        
+        document.querySelector(".loading h1").style.display = "none";
         received = true;
         loadState(JSON.parse(data.canvas));
     })
@@ -26,7 +26,8 @@ function loadSockets(){
 function verifyConnected(){
     if(!socket.id){
         document.querySelector("#canvasspin").style.display = "block";
-        document.querySelector(".canvas").style.display = "none"
+        document.querySelector(".canvas").style.display = "none";
+        verifyServerStatus();
     }
     requestAnimationFrame(verifyConnected)
 }

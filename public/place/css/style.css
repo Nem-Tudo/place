@@ -1,3 +1,5 @@
+@import url('http://fonts.cdnfonts.com/css/heavitas');
+
 main{
     /* display: flex; */
     width: 100vw;
@@ -12,12 +14,17 @@ main{
     transform-origin: 0px 0px;
     transform: scale(1) translate(0px, 0px);
     z-index: -1;
-    position: absolute;
+    position: fixed;
     margin: 100px;
 }
 #canvasspin{
     margin: 100px;
 }
+
+#buttonspin{
+    width: 50px;
+}
+
 canvas {
     background: rgb(255, 255, 255);
     position: absolute;
@@ -41,7 +48,8 @@ body{
     align-items: center;
     width: 100vw;
     justify-content: center;
-    transition: transform 0.3s cubic-bezier(0, 0, 0.35, 1.38)
+    transition: transform 0.3s cubic-bezier(0, 0, 0.35, 1.38);
+    pointer-events: none;
 }
 
 
@@ -53,11 +61,21 @@ body{
     width: 200px;
     display: flex;
     align-items: center;
-    justify-content: center
+    justify-content: center;
+    pointer-events: all;
 }
 
-#buttonspin{
-    width: 50px
+.loading {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.loading h1 {
+    font-family: Heavitas, sans-serif;
+    color: white;
+    margin: 14px;
 }
 
 [disabled]{
@@ -73,7 +91,8 @@ body{
     width: 70px;
     border: none;
     margin: 10px;	
-    -webkit-appearance: none
+    -webkit-appearance: none;
+    pointer-events: all;
 }
 #color::-webkit-color-swatch-wrapper {
     padding: 0;
@@ -81,4 +100,158 @@ body{
 #color::-webkit-color-swatch,
 #color::-moz-color-swatch {
   border: none;
+}
+
+.pixelInfo {
+    position: fixed;
+    z-index: 1;
+    background: #0c0d0e;
+    color: white;
+    height: 176px;
+    margin: 15px;
+    min-width: 144px;
+    border-radius: 0 0 6px 6px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: sans-serif;
+    box-shadow: 0px 0px 10px rgb(0 0 0 / 50%);
+    right: 0;
+    top: 50%;
+    transition: all 0.2s linear;
+    justify-content: center;
+}
+
+.pixelInfo .loading{
+    width: 70px
+}
+
+.pixelInfo-hidden{
+    transform: translateX(200px);
+    opacity: 0;
+}
+
+.pixelInfo .content{
+    min-width: 146px
+}
+
+.pixelInfo .position{
+    position: absolute;
+    background: #000000;
+    width: 100%;
+    top: -40px;
+    height: 40px;
+    border-radius: 6px 6px 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pixelInfo .position p{
+    font-size: 18px;
+    font-family: sans-serif;
+    color: white;
+}
+
+.pixelInfo .color{
+    width: 100%;
+    height: 62px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    border-bottom: solid 1px #ffffff36;
+}
+
+.pixelInfo .color .color-div {
+    width: 30px;
+    height: 30px;
+    margin: 5px;
+}
+
+.pixelInfo .color .color-hex{
+    font-family: sans-serif;
+    font-size: 19px;
+}
+
+.pixelInfo .author {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    margin-top: 6px;
+}
+
+.pixelInfo .author .author-avatar {
+    width: 28px;
+    border-radius: 50%;
+}
+
+.pixelInfo .author .author-tag {
+    font-size: 15px;
+    max-width: 226px;
+    margin-left: 6px;
+    word-break: break-all;
+}
+
+.pixelInfo .date{
+    margin-top: 7px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.pixelInfo .date .date-string {
+    color: #ffffffab;
+    font-size: 15px;
+}
+
+.pixelInfo .copy-color {
+    position: absolute;
+    bottom: 0;
+    margin: 12px;
+    border: none;
+    background-color: #226df8;
+    color: white;
+    width: 80%;
+    height: 34px;
+    border-radius: 5px;
+    font-family: sans-serif;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.2s linear;
+}
+
+.pixelInfo .copy-color:hover {
+    background-color: #1c5cff;
+}
+
+.top-controls{
+    position: fixed;
+    top: 0;
+    z-index: 1;
+    margin-top: 100px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+}
+.coord{
+    background-color: #273344;
+    min-width: 155px;
+    height: 24px;
+    border-radius: 26px;
+    box-shadow: rgb(0 0 0 / 25%) 0px 4px 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: rgb(255, 255, 255);
+    font-size: 17px;
+    font-family: sans-serif;
+    transition: transform 0.3s cubic-bezier(0, 0, 0.35, 1.38);
+    pointer-events: all;
+}
+
+.coord-hidden{
+    transform: translateY(-60px)
 }

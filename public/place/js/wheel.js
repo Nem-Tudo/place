@@ -6,6 +6,7 @@ let start = {
     x: 0,
     y: 0
 };
+let oldx = 0;
 
 function loadWheel(zoom){
     function setTransform() {
@@ -23,9 +24,15 @@ function loadWheel(zoom){
         zoom.onmousemove = function (e) {
             e.preventDefault();
     
+            // const direction = e.pageX < oldx ? "left" : "right";
+            // oldx = e.pageX;
+            
+            // if(direction == "right" && (window.innerWidth - zoom.getBoundingClientRect().left) < window.innerWidth / 2) return;
+            // if(direction == "left" && (window.innerWidth + zoom.getBoundingClientRect().right) > window.innerHeight * 2) return;
+    
             pointX = (e.clientX - start.x);
             pointY = (e.clientY - start.y);
-    
+
             setTransform();
         }
 
@@ -48,6 +55,8 @@ function loadWheel(zoom){
         if(scale < 0.5787037037037038 && delta < 0) return;
 
         (delta > 0) ? (scale *= 1.2) : (scale /= 1.2);
+
+        document.querySelector("#coordscale").innerText = String(scale).slice(0, 4) + "x";
 
         pointX = e.clientX - xs * scale;
         pointY = e.clientY - ys * scale;

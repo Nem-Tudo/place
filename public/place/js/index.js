@@ -4,7 +4,13 @@ let ctx;
 let ctxSelect;
 let color;
 let oldColor;
-
+let loadingDraw = false;
+let timeouted = false;
+let selectedPixelInfo = {
+    x: null,
+    y: null,
+    color: null
+}
 const selectedPixel = {
     x: null,
     y: null,
@@ -14,6 +20,7 @@ window.onload = () => {
     loadWheel(document.querySelector(".canvas"));
     loadCanvas();
     loadSockets();
+    loadAPIs()
 }
 
 function loadCanvas() {
@@ -24,7 +31,28 @@ function loadCanvas() {
     ctxSelect = select.getContext("2d");
 
     document.querySelector(".canvas").addEventListener("click", e => paint(e), true);
+    document.querySelector(".canvas").addEventListener("contextmenu", e => {
+        e.preventDefault();
+        const rect = canvas.getBoundingClientRect();
+
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+    
+        const x = parseInt((e.clientX - rect.left) * scaleX);
+        const y = parseInt((e.clientY - rect.top) * scaleY);
+
+        showPixelInfo(x, y);
+    }, true);
+    document.querySelector("body").addEventListener("click", e => {
+
+        if(e.target.classList.contains("ignorePixelInfoClose")) return;
+
+        closePixelInfo(document.querySelector(".pixelInfo"));
+    }, true);
 }
+
+
+
 
 function paint(e) {
 
@@ -41,20 +69,34 @@ function paint(e) {
     ctxSelect.strokeStyle = "#000000";
     ctxSelect.strokeRect(x * 10 - 1, y * 10 - 1, 10 + 2, 10 + 2);
 
+    ctxSelect.strokeStyle = "#ffffff";
+    ctxSelect.strokeRect(x * 10 - 2, y * 10 - 2, 10 + 4, 10 + 4);
+
     ctxSelect.clearRect(x * 10 + 2, y * 10, 6, -2);
     ctxSelect.clearRect(x * 10 + 2, y * 10 + 12, 6, -2);
     ctxSelect.clearRect(x * 10, y * 10 + 2, -2, 6);
     ctxSelect.clearRect(x * 10 + 12, y * 10 + 2, -2, 6);
+    
+    ctxSelect.clearRect(x * 10 - 3, y * 10 - 3, 10 + 6, 1);
+    ctxSelect.clearRect(x * 10 - 3, y * 10 + 12, 10 + 6, 1);
+    ctxSelect.clearRect(x * 10 - 3, y * 10 - 3, 1, 15);
+    ctxSelect.clearRect(x * 10 + 12, y * 10 - 3, 1, 15);
 
     if(!selectedPixel.y){
-        document.querySelector(".bottom").classList.remove("bottom-hidden")
+        document.querySelector(".bottom").classList.remove("bottom-hidden");
+        document.querySelector(".coord").classList.remove("coord-hidden");
     }
     selectedPixel.x = x;
     selectedPixel.y = y;
 
+    document.querySelector("#coordx").innerText = x;
+    document.querySelector("#coordy").innerText = y;
+
 }
 
 async function draw() {
+    if(loadingDraw) return;
+    if(timeouted) return;
     color = document.querySelector('#color').value;
 
     document.querySelector("#drawpixel").innerHTML = `<img class="spin" id="buttonspin" src="/spin.svg" alt="Loading">`
@@ -71,6 +113,7 @@ async function draw() {
     ctx.fillStyle = color + "50";
     ctx.fillRect(selectedPixel.x, selectedPixel.y, 1, 1);
 
+    loadingDraw = true;
     const response = await fetch('/api/pixel', {
         method: 'POST',
         headers: {
@@ -83,6 +126,7 @@ async function draw() {
             socketid: socket.id
         })
     });
+    loadingDraw = false;
 
     if (response.status !== 200){
         ctx.fillStyle = oldColor;
@@ -92,6 +136,7 @@ async function draw() {
     const responseJson = await response.json();
 
     if(responseJson.timeout){
+        timeouted = true;
         updateButtonTimeout(responseJson.timeout)
     } else {
         document.querySelector("#drawpixel").innerHTML = "Colocar pixel";
@@ -102,6 +147,7 @@ async function draw() {
 
 document.addEventListener("keypress", e => {
     if(e.keyCode === 32){
+        e.preventDefault()
         draw();
     }
 })
@@ -112,10 +158,15 @@ function rgbToHex(rgb) {
 }
 
 function updateButtonTimeout(timeout){
-    const date = moment(timeout).locale("pt-br")
-    
+    const duration = timeout - Date.now();  
+
     const interval = setInterval(() => {
-        document.querySelector("#drawpixel").innerHTML = date.fromNow();
+        const actualDuration = timeout - Date.now();  
+
+        const minutes = Math.floor(actualDuration / 1000 / 60);
+        const seconds = Math.round(actualDuration / 1000 % 60);
+
+        document.querySelector("#drawpixel").innerHTML = `${String(minutes).length == 1 ? "0" + minutes : minutes}:${String(seconds).length == 1 ? "0" + seconds : seconds}`;
     }, 1000);
 
     setTimeout(() => {
@@ -125,6 +176,88 @@ function updateButtonTimeout(timeout){
         document.querySelector("#drawpixel").innerHTML = "Colocar pixel";
 
         document.querySelector("#drawpixel").disabled = false;
+        
+        timeouted = false;
     
-    }, Date.now() - timeout)
+    }, duration);
+}
+
+async function loadAPIs(){
+    verifyServerStatus();
+}
+
+async function verifyServerStatus(){
+    const response = await fetch("/api/place").then(r => r.json());
+
+    if(response.customLoadingMessage){
+        document.querySelector("#customLoadingMessage").innerHTML = response.customLoadingMessage;
+        document.querySelector("#customLoadingMessage").style.display = "block";
+    }
+    
+}
+
+async function showPixelInfo(x, y){
+
+    if (selectedPixelInfo.x == x && selectedPixelInfo.y == y) return;
+    selectedPixelInfo.x = x;
+    selectedPixelInfo.y = y;
+
+    const pixelInfo = document.querySelector(".pixelInfo");
+
+    if(!pixelInfo.classList.contains("pixelInfo-hidden")) closePixelInfo(pixelInfo)
+
+    document.querySelector(".pixelInfo .position p").innerText = `X: ${x} Y: ${y}`;
+    pixelInfo.classList.remove("pixelInfo-hidden");
+
+    const request = await fetch(`/api/pixel?x=${x}&y=${y}`);
+
+    if(request.status !== 200) return closePixelInfo(pixelInfo);
+
+    const response = await request.json();
+
+
+    document.querySelector(".pixelInfo .color .color-div").style.backgroundColor = response.color;
+    document.querySelector(".pixelInfo .color .color-hex").innerHTML = response.color;
+
+    if(response.user){
+        document.querySelector(".pixelInfo .author .author-tag").innerText = response.user.tag;
+        document.querySelector(".pixelInfo .author .author-avatar").src = response.user.avatar;
+        document.querySelector(".pixelInfo .author .author-avatar").style.display = "block";
+    }else {
+        document.querySelector(".pixelInfo .author .author-tag").innerHTML = "Sistema";
+        document.querySelector(".pixelInfo .author .author-avatar").style.display = "none";
+    }
+
+    document.querySelector(".pixelInfo .date .date-string").innerHTML = moment(response.timestamp).format("DD/MM/YYYY HH:mm:ss");
+
+    pixelInfo.style.justifyContent = "unset"
+    document.querySelector(".pixelInfo .loading").style.display = "none";
+    document.querySelector(".pixelInfo .content").style.display = "block";
+
+
+}
+
+function closePixelInfo(pixelInfo){
+    pixelInfo.classList.add("pixelInfo-hidden");
+
+    setTimeout(() => {
+        pixelInfo.style.justifyContent = "center"
+        document.querySelector(".pixelInfo .content").style.display = "none";
+        document.querySelector(".pixelInfo .loading").style.display = "block";
+    }, 200)
+}
+
+function selectColor(){
+    if(!selectedPixel.y){
+        document.querySelector(".bottom").classList.remove("bottom-hidden");
+        document.querySelector(".coord").classList.remove("coord-hidden");
+    }
+    
+    const color = rgbToHex([
+        ctx.getImageData(selectedPixelInfo.x, selectedPixelInfo.y, 1, 1).data[0],
+        ctx.getImageData(selectedPixelInfo.x, selectedPixelInfo.y, 1, 1).data[1],
+        ctx.getImageData(selectedPixelInfo.x, selectedPixelInfo.y, 1, 1).data[2]
+    ]);
+
+    document.querySelector("#color").value = color;
 }

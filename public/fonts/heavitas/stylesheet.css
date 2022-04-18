@@ -1,9 +1,0 @@
-@font-face {
-    font-family: 'Heavitas';
-    src: url('Heavitas.woff2') format('woff2'),
-        url('Heavitas.woff') format('woff');
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
-}
-
