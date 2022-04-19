@@ -184,6 +184,7 @@ function updateButtonTimeout(timeout){
 
 async function loadAPIs(){
     verifyServerStatus();
+    verifyPlayer()
 }
 
 async function verifyServerStatus(){
@@ -194,6 +195,20 @@ async function verifyServerStatus(){
         document.querySelector("#customLoadingMessage").style.display = "block";
     }
     
+}
+async function verifyPlayer(){
+    const request = await fetch("/api/player")
+
+    if(request.status !== 200) return;
+
+    const response = await request.json();
+
+    if(response.timeout > Date.now()){
+        document.querySelector("#drawpixel").disabled = true;
+        timeouted = true;
+        updateButtonTimeout(response.timeout);
+
+    }
 }
 
 async function showPixelInfo(x, y){

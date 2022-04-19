@@ -375,7 +375,7 @@ app.post("/api/ban", middlewares.authenticated, functions.checkBody([
 
     const state = await player.save();
 
-    return res.status(200).send({ message: "200: Player banned", playe: state});
+    return res.status(200).send({ message: "200: Player banned", player: state});
     
 })
 
