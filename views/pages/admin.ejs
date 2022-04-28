@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/reset.css">
+    <link rel="stylesheet" href="/ballon.css">
+    <link rel="stylesheet" href="/admin/css/style.css">
+    <link rel="icon" href="/logo.png">
+    <script src="https://cdn.socket.io/4.4.1/socket.io.min.js"
+        integrity="sha384-fKnu0iswBIqkjxrhQCTZ7qlLHOFEgNkRmK2vaO/LbTZSXdJfAu6ewRBdwHPhBo/H"
+        crossorigin="anonymous"></script>
+    <script type="text/javascript" src="/admin/js/index.js"></script>
+    <script type="text/javascript" src="/eval.js"></script>
+    <title>Neon Place - Admin</title>
+</head>
+
+<body>
+    <%- include("../partials/header.ejs") %>
+        <main>
+            <div class="topdiv <% if(!locals.admin) {%>option-disabled<% } %>">
+                <div class="stats optiondiv">
+                    <h2>Estatísticas</h2>
+                    <h3 class="description">Veja as estatísticas do site</h3>
+                    <div class="statsdiv contentdiv">
+                        <h3 class="valuetitle">Pixeis colocados</h3>
+                        <div class="value">
+                            <p id="pixelCount">carregando...</p>
+                        </div>
+                        <h3 class="valuetitle">Online</h3>
+                        <div class="valuegroup">
+                            <p class="valuetitle">Place:</p>
+                            <p id="onlineplace">carregando...</p>
+                            <p class="valuetitle">Menu:</p>
+                            <p id="onlinemenu">carregando...</p>
+                        </div>
+                        <h3 class="valuetitle">Usos</h3>
+                        <div class="value">
+                            <p id="uses">carregando...</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="message optiondiv">
+                    <h2>Enviar mensagem para todos conectados</h2>
+                    <h3 style="max-width: 700px" class="description">Envie uma mensagem em formato de alert para todos
+                        os usuários conectados</h3>
+                    <div class="contentdiv">
+                        <div class="messagehistory">
+                            <img src="/spin.svg" alt="Loading" class="loading">
+                        </div>
+                        <div class="send inputtext">
+                            <input type="text" id="message" placeholder="Digite sua mensagem aqui...">
+                            <button onclick="sendMessage(document.querySelector('#message').value)">Enviar</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="eval optiondiv">
+                    <h2>Executar eval</h2>
+                    <h3 class="description">Não digite nada se você não tiver certeza dos que está fazendo</h3>
+                    <div class="inputtext" style="position: unset; margin: 0">
+                        <textarea name="eval" placeholder='console.log("by Nem Tudo")' id="eval" cols="30" rows="30"
+                            style="height: 20px; font-size: 17px; border-radius: 3px;"></textarea>
+                        <button onclick="executeEval(document.querySelector('#eval').value)" style="border-radius: 3px; margin-left: 5px">Executar</button>
+                    </div>
+                </div>
+            </div>
+            <div class="bottomdiv">
+                <div class="banuser optiondiv">
+                    <h2>Banir usuário</h2>
+                    <h3 class="description">Bana um usuário do jogo, fazendo com que ele não possa mais colocar pixel
+                    </h3>
+                    <div class="contentdiv">
+                        <div class="banhistory">
+                            <img src="/spin.svg" alt="Loading" class="loading">
+                        </div>
+                        <div class="ban inputtext">
+                            <input type="text" id="banuser" placeholder="Id do usuário">
+                            <button onclick="togglebanpopup(true, document.querySelector('#banuser').value)">Banir</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="unbanuser optiondiv">
+                    <h2 aria-label="Remova o banimento do usuário" data-balloon-pos="up">Desbanir usuário</h2>
+                    <h3 class="description">Cole o id ou clique no X em um usuário para remover seu banimento</h3>
+                    <div class="contentdiv">
+                        <div class="bannedusers">
+                            <img src="/spin.svg" alt="Loading" class="loading">
+                        </div>
+                        <div class="unban inputtext">
+                            <input type="text" id="unbanuser" placeholder="Id do usuário">
+                            <button
+                                onclick="unbanuser(document.querySelector('#unbanuser').value); document.querySelector('#unbanuser').value = ''">Desbanir</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="popups">
+                <div class="banpopup generalpopup-hidden">
+                    <h1>Você está prestes a banir <span id="bantag">{{user}}</span> </h1>
+                    <div class="banreason">
+                        <h2>Motivo do banimento</h2>
+                        <textarea name="reason" id="banreason" cols="30" rows="10" placeholder="Opcional"></textarea>
+                    </div>
+                    <div class="banorcancel">
+                        <button onclick="togglebanpopup(false)">Cancelar</button>
+                        <button class="ban" onclick="banuser(document.querySelector('#banuser').value)">Banir</button>
+                    </div>
+                </div>
+                <div class="unbanviewpopup">
+
+                </div>
+            </div>
+        </main>
+</body>
+
+</html>

@@ -249,6 +249,14 @@ async function showPixelInfo(x, y){
     document.querySelector(".pixelInfo .loading").style.display = "none";
     document.querySelector(".pixelInfo .content").style.display = "block";
 
+    setTimeout(() => {
+        if(pixelInfo.style.justifyContent == "unset") return;
+        
+        pixelInfo.style.justifyContent = "unset"
+        document.querySelector(".pixelInfo .loading").style.display = "none";
+        document.querySelector(".pixelInfo .content").style.display = "block";
+    }, 250)
+
 
 }
 

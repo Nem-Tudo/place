@@ -2,6 +2,13 @@
     <link rel="stylesheet" href="/partials/header/css/style.css">
     <script type="text/javascript" src="/partials/header/js/index.js"></script>
 </head>
+
+<% if(locals.accessAdmin){%> 
+<div class="admin" style="width: 100%; box-sizing: border-box; padding: 10px; min-height: 31px; background-color: #2a944c; display: flex; align-items: center; justify-content: center">
+    <p style='color: white; font-family: "Inter", sans-serif; font-size: 16px; text-align: center;'>Opa! Parece que você tem permissão de ver a página de Admin! caso queira acessar, clique <a style="text-decoration: none; color: rgb(61, 61, 207)" href="/admin">aqui</a> </p>
+</div>
+<%}%>
+
 <header>
     <img class="logo" src="/logo.png" alt="Neon Place logo" onclick="location.href='/'">
 
@@ -23,4 +30,6 @@
 
             <%}%>
     </div>
+
+    <a class="navbaroption" href="/admin">Página de Admin</a>
 </header>

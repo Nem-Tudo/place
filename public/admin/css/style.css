@@ -1,0 +1,296 @@
+main{
+    display: flex;
+    flex-direction: column;
+}
+
+.option-disabled{
+    display: none !important;
+}
+
+.topdiv, .bottomdiv{
+    display: flex;
+    margin: 15px;
+    flex-wrap: wrap;
+}
+
+.topdiv{
+    border-bottom: solid 1px #ffffff14;
+}
+
+.loading{
+    width: 50px
+}
+
+h2{
+    font-family: "Heavitas", sans-serif;
+    color: white;
+    font-size: 18px;
+    margin-bottom: 3px;
+}
+
+.valuetitle{
+    font-family: "Heavitas", sans-serif;
+    color: rgba(255, 255, 255, 0.603);
+    font-size: 12px;    
+    margin: 6px auto;
+}
+
+.valuegroup{
+    background-color: rgba(0, 0, 0, 0.425);
+    border-radius: 7px;
+    padding: 7px;
+}
+
+.value p{
+    font-size: 18px;
+}
+
+#onlineplace, #onlinemenu{
+    font-size: 18px;
+}
+
+.description{
+    margin-bottom: 6px;
+    font-family: "Heavitas", sans-serif;
+    color: rgba(255, 255, 255, 0.603);
+    font-size: 12px;    
+    max-width: 300px;
+}
+
+.optiondiv{
+    margin: 15px;
+}
+
+.contentdiv{
+    background: #00000047;
+    border-radius: 12px;
+    color: white;
+    font-family: sans-serif;
+    padding: 16px;
+    max-width: 300px;
+    height: 206px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.116);
+    position: relative;
+}
+
+.messagehistory{
+    overflow-y: auto;
+    height: 73%;
+}
+
+.message .contentdiv{
+    max-width: 700px
+}
+
+.messageobj{
+    margin-top: 9px;
+}
+.messageobj .messageauthor{
+    font-weight: bold;
+}
+
+.messageobj .messagecontent{
+    color: #ffffffad;
+    word-break: break-all;
+}
+
+
+.inputtext input[type="text"], .inputtext textarea{
+    height: 20px;
+    border-radius: 3px 0px 0px 3px;
+    border: solid 1px black;
+    padding: 10px;
+    font-size: 18px;
+    font-family: "Inter", sans-serif;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.349);
+    outline: none;
+    width: 100%;
+}
+
+.inputtext button{
+    height: 42px;
+    border-radius: 0px 3px 3px 0px;
+    font-size: 15px;
+    font-family: "Inter", sans-serif;
+    color: white;
+    outline: none;
+    background-color: rgb(2 139 54);
+    border: solid 1px rgba(255, 255, 255, 0);
+    width: 132px;
+    cursor: pointer;
+    transition: all 0.2s linear;
+}
+
+.inputtext button:hover{
+    background-color: rgb(2, 121, 47);
+    
+}
+
+.ban button{
+    background-color: #e72b2e;
+}
+.ban button:hover{
+    background-color: #c02023;
+
+}
+
+.inputtext{
+    position: absolute;
+    bottom: 0;
+    margin: 15px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    margin-left: 0;
+}
+
+.banneduser{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 11px;
+}
+
+.banneduser:hover > .banneduseroptions{
+    opacity: 1;
+}
+
+.banneduser .bannedusertag{
+    font-size: 18px;
+    word-break: break-all;
+}
+
+.banneduser .banneduseravatar{
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.banneduseroptions{
+    margin-left: 15px;
+    margin-right: auto;
+    transition: all 0.05s linear;
+    opacity: 0;
+}
+
+.banneduseroptions img{
+    width: 16px;
+    margin-left: 6px;
+    cursor: pointer;
+    filter: brightness(0.8);
+}
+.banneduser img:hover{
+    filter: brightness(1);
+}
+
+.unbanuser .bannedusers{
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 76%;
+}
+
+.banhistory{
+    overflow-y: auto;
+    height: 76%;
+}
+
+.bancase{
+    margin: 7px 0;
+    font-size: 16px;
+    word-break: break-all;
+    padding: 5px;
+}
+.bancase .author{
+    font-weight: bold;
+}
+.bancase .user{
+    font-weight: bold;
+}
+.bancase .reason{
+    font-weight: bold;
+}
+
+.banpopup{
+    display: flex;
+    position: fixed;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(13, 15, 17);
+    min-width: 556px;
+    min-height: 342px;
+    top: 0;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 15px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.116);
+    transition: all 0.2s linear;
+}
+
+.banpopup h1{
+    font-family: "Heavitas", sans-serif;
+    position: absolute;
+    top: 0px;
+    margin: 30px;
+    color: white;
+}
+
+.banpopup h2{
+    color: rgba(255, 255, 255, 0.719);
+    margin-bottom: 6px;
+}
+.banpopup textarea{
+    height: 20px;
+    border-radius: 5px;
+    border: solid 1px black;
+    padding: 10px;
+    font-size: 18px;
+    font-family: "Inter", sans-serif;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.349);
+    outline: none;
+    width: 447px;
+    height: 156px;
+    resize: none;
+}
+
+.banorcancel {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    margin: 19px;
+}
+
+.banorcancel button{
+    height: 42px;
+    border-radius: 5px;
+    font-size: 15px;
+    font-family: "Inter", sans-serif;
+    color: white;
+    outline: none;
+    background-color: rgb(2 139 54);
+    border: solid 1px rgba(255, 255, 255, 0);
+    width: 132px;
+    cursor: pointer;
+    transition: all 0.1s linear;
+}
+
+.banorcancel button:hover{
+    background-color: rgb(2, 121, 47);
+}
+
+.banorcancel .ban{
+    background-color: #e72b2e;
+}
+.banorcancel .ban:hover{
+    background-color: #c02023;
+
+}
+
+.generalpopup-hidden{
+    opacity: 0;
+    z-index: -2;
+}

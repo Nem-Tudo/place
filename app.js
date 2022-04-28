@@ -65,7 +65,7 @@ let canvas;
 loadCanvas().then(async (_canvas) => {
     canvas = _canvas;
 
-    io.emit("canvasState", {
+    io.to("place").emit("canvasState", {
         canvas: JSON.stringify(canvas.canvas)
     });
 
@@ -80,7 +80,7 @@ async function loadCanvas() {
         }).save();
     }
 
-    if (true) {
+    if (false) {
         console.log("canvas preserved");
         return canvas;
     }
@@ -118,6 +118,22 @@ async function loadCanvas() {
     }
 }
 
+//siteSchema
+let siteSchema;
+loadSiteSchema().then(async (_siteSchema) => {
+    siteSchema = _siteSchema;
+});
+
+async function loadSiteSchema(){
+    let siteSchema = await schemas.site.findOne({});
+
+    if (!siteSchema) {
+        siteSchema = await new schemas.site({}).save();
+    }
+
+    return siteSchema;
+}
+
 //save changes in database
 let modified = false;
 let _saving = false;
@@ -140,11 +156,23 @@ setInterval(async () => {
 
 }, 5 * 1000)
 
+//uses stats
+app.use((req, res, next) => {
+
+    if(req.originalUrl.startsWith("/api")) return next();
+
+    siteSchema.stats.uses++;
+    siteSchema.save();
+
+    next()
+})
+
 
 //configure socket.io
 io.on("connection", socket => {
     if (!canvas) return;
 
+    if(socket.request._query["canvaspage"] == "true") socket.join("place")
     socket.emit("canvasState", {
         canvas: JSON.stringify(canvas.canvas)
     });
@@ -170,15 +198,22 @@ app.get("/oauth2/redirect", passport.authenticate("discord", {
 
 //routes
 app.get("/", (req, res) => {
-    res.render("pages/index", { user: req.user })
+    res.render("pages/index", { user: req.user, accessAdmin: functions.canAccessAdmin(req.user.discordId)})
 })
 
 app.get("/place", middlewares.authenticated, (req, res) => {
 
-    if (!functions.canJoin(req.user)) return res.render("pages/joinGuild", { user: req.user })
+    if (!functions.canJoin(req.user)) return res.render("pages/joinGuild", { user: req.user, accessAdmin: functions.canAccessAdmin(req.user.discordId)})
 
-    res.render("pages/place", { user: req.user, width: config.canvas.width, height: config.canvas.height })
+    res.render("pages/place", { user: req.user, width: config.canvas.width, height: config.canvas.height})
 })
+
+app.get("/admin", middlewares.authenticated, (req, res) => {
+    if (!(config.settings.moderatorUsers.includes(req.user.discordId) || config.settings.adminUsers.includes(req.user.discordId))) return res.render("pages/notAdmin", {user: req.user});
+    
+    res.render("pages/admin", { user: req.user, admin: config.settings.adminUsers.includes(req.user.discordId)});
+})
+
 
 //api
 app.post("/api/pixel", middlewares.authenticated, functions.checkBody([
@@ -261,6 +296,9 @@ app.post("/api/pixel", middlewares.authenticated, functions.checkBody([
 
     const timeout = playerState?.timeout || 0;
 
+    if(!socket.rooms.has("place")) socket.join("place")
+
+
     //place pixel
     canvas.canvas[req.body.x][req.body.y] = {
         color: req.body.color,
@@ -274,11 +312,16 @@ app.post("/api/pixel", middlewares.authenticated, functions.checkBody([
     canvas.markModified(`canvas.${req.body.x}.${req.body.y}`);
     modified = true;
 
-    io.emit("pixelUpdate", {
+    
+
+    io.to("place").emit("pixelUpdate", {
         x: req.body.x,
         y: req.body.y,
         color: req.body.color
     });
+
+    siteSchema.stats.placePixeis++;
+    siteSchema.save();
 
     res.status(200).send({ timeout, message: `200: Pixel updated: x: ${req.body.x}, y: ${req.body.y}` });
 })
@@ -314,12 +357,19 @@ app.get("/api/player", middlewares.authenticated, async (req, res) => {
 
     if (!canvas) return res.status(503).send({ message: "503: Service Unavailable" });
 
-    const player = await schemas.player.findOne({ discordId: req.user.discordId });
+    const player = req.query.id ? await schemas.player.findOne({ discordId: req.query.id }) : await schemas.player.findOne({ discordId: req.user.discordId })
 
     if (!player) return res.status(404).send({ message: "404: Player not found" });
 
+    const user = await schemas.discordUser.findOne({ discordId: player.discordId })
+
     res.status(200).send({
         discordId: player.discordId,
+        user: {
+            tag: user.tag,
+            avatar: user.avatar,
+            avatarURL: user.avatarURL
+        },
         timeout: player.timeout,
         banned: player.banned
     });
@@ -340,7 +390,7 @@ app.get("/api/place", middlewares.authenticated, async (req, res) => {
 
 })
 
-app.post("/api/ban", middlewares.authenticated, functions.checkBody([
+app.post("/api/admin/ban", middlewares.authenticated, functions.checkBody([
     {
         name: "user",
         type: "string",
@@ -356,10 +406,10 @@ app.post("/api/ban", middlewares.authenticated, functions.checkBody([
         }
     }
 ]), async (req, res) => {
-    const player = await schemas.player.findOne({ discordId: req.body.user });
-
     if(!config.settings.moderatorUsers.includes(req.user.discordId) && !config.settings.adminUsers.includes(req.user.discordId)) return res.status(403).send({ message: "403: You need to be a moderator or admin" });
     
+    const player = await schemas.player.findOne({ discordId: req.body.user });
+
     if(!player) return res.status(404).send({ message: "404: Player not found" });
 
     if(player.banned.banned) return res.status(422).send({ message: "422: Player already banned" });
@@ -375,8 +425,159 @@ app.post("/api/ban", middlewares.authenticated, functions.checkBody([
 
     const state = await player.save();
 
+    const playerDiscord = await schemas.discordUser.findOne({ discordId: player.discordId });
+
+    siteSchema.bannedUsers.push({
+        id: playerDiscord.discordId,
+        tag: playerDiscord.tag,
+        avatar: playerDiscord.avatar,
+        avatarURL: playerDiscord.avatarURL,
+        reason: state.banned.reason,
+        bannedBy: state.banned.bannedBy,
+        bannedAt: state.banned.bannedAt
+    });
+
+    siteSchema.bannedUsersMessages.push({
+        user: player.discordId,
+        staff: req.user.tag,
+        reason: req.body.reason ?? "Não informado",
+        action: "baniu"
+    })
+
+    siteSchema.markModified("bannedUsers");
+    siteSchema.markModified("bannedUsersMessages");
+
+    siteSchema.save();
+
     return res.status(200).send({ message: "200: Player banned", player: state});
     
+})
+app.delete("/api/admin/ban", middlewares.authenticated, functions.checkBody([
+    {
+        name: "user",
+        type: "string",
+        required: true
+
+    }, 
+    {
+        name: "reason",
+        type: "string",
+        options: {
+            min: 1,
+            max: 2048
+        }
+    }
+]), async (req, res) => {
+    if(!config.settings.moderatorUsers.includes(req.user.discordId) && !config.settings.adminUsers.includes(req.user.discordId)) return res.status(403).send({ message: "403: You need to be a moderator or admin" });
+    
+    const player = await schemas.player.findOne({ discordId: req.body.user });
+
+    if(!player) return res.status(404).send({ message: "404: Player not found" });
+
+    if(!player.banned.banned) return res.status(422).send({ message: "422: Player is not banned" });
+
+    if(config.settings.moderatorUsers.includes(req.body.user) && !config.settings.adminUsers.includes(req.user.discordId)) return res.status(422).send({ message: "422: You can't unban a moderator" });
+
+    player.banned.banned = false;
+
+    const state = await player.save();
+
+    siteSchema.bannedUsers = functions.removeItemArray(siteSchema.bannedUsers, siteSchema.bannedUsers.find(ban => ban.id == player.discordId));
+
+    siteSchema.bannedUsersMessages.push({
+        user: player.discordId,
+        staff: req.user.tag,
+        action: "desbaniu"
+    })
+
+    siteSchema.markModified("bannedUsers");
+    siteSchema.markModified("bannedUsersMessages");
+
+    siteSchema.save();
+
+    return res.status(200).send({ message: "200: Player unbanned", player: state});
+    
+})
+
+app.get("/api/status", middlewares.authenticated, async (req, res) => {
+    if (!functions.canJoin(req.user)) return res.status(403).send({ message: "403: You need to be on the following servers: " + config.settings.onlyInGuilds.join(", ") });
+    
+    if(!config.settings.moderatorUsers.includes(req.user.discordId) && !config.settings.adminUsers.includes(req.user.discordId)) return res.status(403).send({ message: "403: You need to be a moderator or admin" });
+    
+    if(!siteSchema) return res.status(503).send({ message: "503: Service Unavailable" });
+
+    const response = {};
+
+    if(config.settings.adminUsers.includes(req.user.discordId)){
+        response.stats = JSON.parse(JSON.stringify(siteSchema.stats));
+        
+        response.stats.online = {};
+        response.stats.online.place = io.sockets.adapter.rooms?.get('place')?.size ?? 0;
+        response.stats.online.menu = (io.engine.clientsCount - (io.sockets.adapter.rooms?.get('place')?.size ?? 0)) ?? 0;
+        
+        response.sentAdminMessages = siteSchema.sentAdminMessages;
+    }
+
+    response.bannedUsersMessages = siteSchema.bannedUsersMessages;
+    response.bannedUsers = siteSchema.bannedUsers;
+
+    return res.status(200).send(response);
+})
+
+app.post("/api/admin/eval", middlewares.authenticated, functions.checkBody([
+    {
+        name: "eval",
+        type: "string",
+        required: true
+    }
+]), (req, res) => {
+    if(!config.settings.adminUsers.includes(req.user.discordId)) return res.status(403).send({ message: "403: Missing permission" });
+
+    const code = req.body.eval;
+
+    try {
+        const result = eval(code);
+        res.status(200).send({ message: "200: Eval successful", result });
+    } catch (error) {
+        res.status(500).send({ message: "500: Eval failed", result: String(error) });
+    }
+})
+
+app.post("/api/admin/message", middlewares.authenticated, functions.checkBody([
+    {
+        name: "message",
+        type: "string",
+        required: true,
+        options: {
+            min: 1
+        }
+    }
+]), (req, res) => {
+    if(!config.settings.adminUsers.includes(req.user.discordId)) return res.status(403).send({ message: "403: Missing permission" });
+
+    const message = req.body.message;
+
+    try {
+        
+        io.emit("eval", {
+            eval: `alert("${message}"); console.log("Received message: ${message}");`
+        });
+
+        siteSchema.sentAdminMessages.push({
+            user: {
+                tag: req.user.tag,
+                id: req.user.discordId
+            },
+            message
+        });
+
+        siteSchema.markModified("sentAdminMessages");
+        siteSchema.save();
+        
+        res.status(200).send({ message: `200: Message sent to ${io.engine.clientsCount} users.`, usersCount: io.engine.clientsCount});
+    } catch (error) {
+        res.status(500).send({ message: "500: Failed on sent message", error: String(error) });
+    }
 })
 
 //server listen

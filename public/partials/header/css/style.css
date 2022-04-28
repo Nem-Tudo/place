@@ -83,3 +83,13 @@ header .popup .popup-content{
     align-items: center;
     margin: 15px;
 }
+
+.navbaroption{
+    color: white;
+    text-decoration: none;
+    font-family: sans-serif;
+    font-size: 18px;
+}
+.navbaroption:hover{
+    text-decoration: underline;
+}

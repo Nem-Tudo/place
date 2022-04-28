@@ -15,4 +15,5 @@ module.exports = {
     canvas: require('./schemas/canvas'),
     discordUser: require('./schemas/discordUser'),
     player: require('./schemas/player'),
+    site: require('./schemas/site'),
 }

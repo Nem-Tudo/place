@@ -4,7 +4,6 @@ function toggleUserPopup() {
     const popup = document.querySelector("#userpopup");
 
     if (popupenabled === false) {
-        console.log("ds")
         popup.classList.remove("popup-hidden");
         popupenabled = true;
         document.querySelector("main").addEventListener("click", toggleUserPopup);

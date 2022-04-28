@@ -2,7 +2,7 @@ module.exports = {
     port: 1516,
     settings: {
         onlyInGuilds: ["893246472043261983"],
-        moderatorUsers: [],
+        moderatorUsers: ["612651439701098558"],
         adminUsers: ["612651439701098558"]
     },
     database: {
