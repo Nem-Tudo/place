@@ -211,7 +211,7 @@ app.get("/oauth2/redirect", passport.authenticate("discord", {
 
 //routes
 app.get("/", (req, res) => {
-    res.render("pages/index", { user: req.user, accessAdmin: functions.canAccessAdmin(req.user.discordId)})
+    res.render("pages/index", { user: req.user, accessAdmin: functions.canAccessAdmin(req.user?.discordId)})
 })
 
 app.get("/place", middlewares.authenticated, (req, res) => {
