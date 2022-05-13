@@ -69,6 +69,8 @@ loadCanvas().then(async (_canvas) => {
         canvas: JSON.stringify(canvas.canvas)
     });
 
+    io.emit("reload");
+
 });
 
 async function loadCanvas() {
@@ -168,14 +170,25 @@ app.use((req, res, next) => {
 })
 
 
+//manual change
+const playable = {
+    canplay: true,
+    message: "Não disponivel no momento :("
+}
+
 //configure socket.io
 io.on("connection", socket => {
     if (!canvas) return;
 
     if(socket.request._query["canvaspage"] == "true") socket.join("place")
+
     socket.emit("canvasState", {
-        canvas: JSON.stringify(canvas.canvas)
+        canvas: JSON.stringify(canvas.canvas),
     });
+
+    socket.emit("inPlace", {
+        inPlace: socket.rooms.has("place")
+    })
 
     socket.on("getCanvasState", data => {
         socket.emit("canvasState", {
@@ -204,6 +217,8 @@ app.get("/", (req, res) => {
 app.get("/place", middlewares.authenticated, (req, res) => {
 
     if (!functions.canJoin(req.user)) return res.render("pages/joinGuild", { user: req.user, accessAdmin: functions.canAccessAdmin(req.user.discordId)})
+
+    if(!playable.canplay) return res.render("pages/notPlayable", { message: playable.message, user: req.user, accessAdmin: functions.canAccessAdmin(req.user.discordId)})
 
     res.render("pages/place", { user: req.user, width: config.canvas.width, height: config.canvas.height})
 })
@@ -256,6 +271,8 @@ app.post("/api/pixel", middlewares.authenticated, functions.checkBody([
     if (!functions.canJoin(req.user)) return res.status(403).send({ message: "403: You need to be on the following servers: " + config.settings.onlyInGuilds.join(", ") });
 
     if (!canvas) return res.status(503).send({ message: "503: Service Unavailable" });
+
+    if(!playable.canplay) return res.status(503).send({ message: `503: ${playable.message}` });
 
     if (!functions.isColor(req.body.color)) return res.status(400).send({ message: "400: Invalid color" });
 

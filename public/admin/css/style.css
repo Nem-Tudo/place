@@ -278,6 +278,26 @@ h2{
     transition: all 0.1s linear;
 }
 
+.unbanviewpopup .close{
+    margin: 15px;
+    margin-left: auto;
+}
+.unbanviewpopup .close button{
+    border-radius: 5px;
+    font-size: 15px;
+    font-family: "Inter", sans-serif;
+    color: #e72b2e;
+    outline: none;
+    background-color: transparent;
+    border: solid 1px rgba(255, 255, 255, 0);
+    cursor: pointer;
+    transition: all 0.1s linear;
+
+}
+.unbanviewpopup .close button:hover{
+    color: #c02023;
+}
+
 .banorcancel button:hover{
     background-color: rgb(2, 121, 47);
 }
@@ -287,10 +307,73 @@ h2{
 }
 .banorcancel .ban:hover{
     background-color: #c02023;
-
 }
 
 .generalpopup-hidden{
     opacity: 0;
     z-index: -2;
+    pointer-events: none;
+}
+
+
+.unbanviewpopup{
+    display: flex;
+    position: fixed;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(13, 15, 17);
+    min-width: 463px;
+    min-height: 221px;
+    top: 0;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 15px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.116);
+    transition: all 0.2s linear;
+}
+
+.unbanviewpopup h1, h2{
+    color: white;
+    font-family: "Inter", sans-serif;
+    font-weight: bold;
+    font-size: 19px;
+}
+
+.unbanviewpopup h1{
+    position: relative;
+    top: 0px;
+    margin: 15px;
+    font-size: 30px;
+    font-family: "Heavitas", sans-serif;
+    word-break: break-all;
+    text-align: center; 
+    padding: 8px
+}
+
+.unbanviewpopup #bannedreason {
+    border-top: 1px solid rgba(255, 255, 255, 0.082);
+    position: relative;
+    bottom: 0;
+    margin: 15px;
+    padding: 15px;
+    width: 87%;
+    text-align: center;
+    max-width: 200px;
+}
+
+.info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.popups{
+    width: 0;
+    height: 100vh;
+    position: fixed;
+    background-color:#00000052;
+    top: 0;
+    left: 0;
 }

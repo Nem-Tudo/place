@@ -19,12 +19,12 @@ async function updateStatus() {
 
     if (JSON.stringify(stats) == JSON.stringify(oldstats)) return;
 
-    if(stats.stats){
+    if (stats.stats) {
         document.querySelector("#pixelCount").innerText = stats.stats.placePixeis;
 
         document.querySelector("#onlineplace").innerText = stats.stats.online.place;
         document.querySelector("#onlinemenu").innerText = stats.stats.online.menu;
-    
+
         document.querySelector("#uses").innerText = stats.stats.uses;
     }
 
@@ -61,10 +61,10 @@ async function updateStatus() {
 
         stats.bannedUsers.forEach(ban => {
             document.querySelector(".bannedusers").innerHTML += `<div class="banneduser">
-            <img class="banneduseravatar" src="${ban.avatar ? ban.avatarURL : "https://cdn.discordapp.com/embed/avatars/1.png"}" alt="User avatar">
+            <img onerror="this.src='https://cdn.discordapp.com/embed/avatars/1.png'" class="banneduseravatar" src="${ban.avatar ? ban.avatarURL : "https://cdn.discordapp.com/embed/avatars/1.png"}" alt="User avatar">
             <p class="bannedusertag">${ban.tag}</p>
             <div class="banneduseroptions">
-                <img src="/admin/img/eye.svg" alt="eye" class="viewbanneduserinfo">
+                <img src="/admin/img/eye.svg" onclick="viewbaninfo('${ban.id}', true)"alt="eye" class="viewbanneduserinfo">
                 <img src="/admin/img/x.svg" onclick="unbanuser('${ban.id}')"alt="x" class="unbanbanneduser">
             </div>
         </div>`
@@ -76,6 +76,7 @@ async function updateStatus() {
 
 
 //functions
+
 async function unbanuser(userid) {
     const request = await fetch("/api/admin/ban", {
         method: "DELETE",
@@ -122,27 +123,32 @@ async function banuser(userid) {
 async function togglebanpopup(open, id) {
     if (open) {
 
-        if(!id) return alert("coloque um id");
+        if (!id) return alert("coloque um id");
 
         const request = await fetch("/api/player?id=" + id,)
-    
+
         const response = await request.json();
-    
-        if(request.status !== 200) return alert(response.message)
-    
+
+        if (request.status !== 200) return alert(response.message)
+
         document.querySelector("#bantag").innerText = response.user.tag;
 
         document.querySelector('.banpopup').classList.remove('generalpopup-hidden');
+        document.querySelector(".popups").style.width = "100vw";
     } else {
         document.querySelector('.banpopup').classList.add('generalpopup-hidden');
-        document.querySelector("#bantag").innerText = "{{user}}";
-        document.querySelector("#banreason").value = "";
+        document.querySelector(".popups").style.width = "0";
+        setTimeout(() => {
+            document.querySelector("#bantag").innerText = "{{user}}";
+            document.querySelector("#banreason").value = "";
+        }, 200)
+
     }
 }
 
-async function sendMessage(message){
+async function sendMessage(message) {
 
-    if(lastmessagesenddate + 1000 > Date.now()) return;
+    if (lastmessagesenddate + 1000 > Date.now()) return;
 
     lastmessagesenddate = Date.now();
 
@@ -166,7 +172,7 @@ async function sendMessage(message){
     document.querySelector("#message").value = "";
 }
 
-async function executeEval(eval){
+async function executeEval(eval) {
     const request = await fetch("/api/admin/eval", {
         method: "POST",
         headers: {
@@ -186,4 +192,36 @@ async function executeEval(eval){
     alert(response.result)
 
     document.querySelector("#eval").value = "";
+}
+
+async function viewbaninfo(userid, open) {
+    if (open) {
+        const request = await fetch("/api/player?id=" + userid)
+        const response = await request.json();
+
+        if (request.status !== 200) {
+            alert(`Erro: ${response.message}`);
+        }
+
+        if (!response.banned.banned) return alert("Usuário não está banido");
+
+        const bannedAt = response.banned.bannedAt.split("T")[0].split("-")
+
+        document.querySelector(".unbanviewpopup h1").innerText = response.user.tag;
+        document.querySelector(".unbanviewpopup #bannedby span").innerText = response.banned.bannedBy;
+        document.querySelector(".unbanviewpopup #bannedon span").innerText = `${bannedAt[2]}/${bannedAt[1]}/${bannedAt[0]}`;
+        document.querySelector(".unbanviewpopup #bannedreason").innerText = response.banned.reason;
+        document.querySelector('.unbanviewpopup').classList.remove('generalpopup-hidden');
+        document.querySelector(".popups").style.width = "100vw";
+
+    } else {
+        document.querySelector('.unbanviewpopup').classList.add('generalpopup-hidden');
+        setTimeout(() => {
+            document.querySelector(".unbanviewpopup h1").innerText = "{{user}}";
+            document.querySelector(".unbanviewpopup #bannedby span").innerText = "{{staff}}";
+            document.querySelector(".unbanviewpopup #bannedon span").innerText = "{{date}}";
+            document.querySelector(".unbanviewpopup #bannedreason").innerText = "{{date}}";
+        }, 500)
+        document.querySelector(".popups").style.width = "0";
+    }
 }

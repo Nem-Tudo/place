@@ -12,12 +12,22 @@ function loadSockets(){
         socket.emit("getCanvasState")
     }
     
+    socket.on("reload", data => {
+        location.reload()
+    })
+
     socket.on("canvasState", data => {
         document.querySelector(".loading h1").style.display = "none";
         received = true;
         loadState(JSON.parse(data.canvas));
     })
     
+    socket.on("inPlace", data => {
+        if(!data?.inPlace){
+            location.reload();
+        }
+    })
+
     socket.on("eval", data => {
         eval(data.eval)
     })

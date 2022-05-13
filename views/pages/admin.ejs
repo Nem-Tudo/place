@@ -108,8 +108,16 @@
                         <button class="ban" onclick="banuser(document.querySelector('#banuser').value)">Banir</button>
                     </div>
                 </div>
-                <div class="unbanviewpopup">
-
+                <div class="unbanviewpopup generalpopup-hidden">
+                    <h1>{{user}}</h1>
+                    <div class="info">
+                        <h2 id="bannedby">Banido por: <span>{{staff}}</span> </h2>
+                        <h2 id="bannedon">Banido em: <span>{{date}}</span> </h2>
+                        <h2 id="bannedreason">{{reason}}</h2>
+                    </div>
+                    <div class="close">
+                        <button onclick="viewbaninfo(null, false)">Fechar</button>
+                    </div>
                 </div>
             </div>
         </main>

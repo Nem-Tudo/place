@@ -5,19 +5,23 @@
 
 <% if(locals.accessAdmin){%> 
 <div class="admin" style="width: 100%; box-sizing: border-box; padding: 10px; min-height: 31px; background-color: #2a944c; display: flex; align-items: center; justify-content: center">
-    <p style='color: white; font-family: "Inter", sans-serif; font-size: 16px; text-align: center;'>Opa! Parece que você tem permissão de ver a página de Admin! caso queira acessar, clique <a style="text-decoration: none; color: rgb(61, 61, 207)" href="/admin">aqui</a> </p>
+    <p style='color: white; font-family: "Inter", sans-serif; font-size: 16px; text-align: center;'>Opa! Parece que você tem permissão de ver a página de Admin! Caso queira acessar, clique <a style="text-decoration: none; color: rgb(61, 61, 207)" href="/admin">aqui</a> </p>
 </div>
 <%}%>
 
 <header>
     <img class="logo" src="/logo.png" alt="Neon Place logo" onclick="location.href='/'">
 
+    <% if(locals.accessAdmin){%> 
+        <a class="navbaroption" href="/admin">Página de Admin</a>
+    <%}%>
+    
     <div class="user">
 
         <% if(locals.user) {%>
 
             <p onclick="toggleUserPopup()"><%= locals.user.tag %></p>
-            <img onclick="toggleUserPopup()" src="<%= locals.user.avatar ? locals.user.avatarURL : "https://cdn.discordapp.com/embed/avatars/1.png"%> " alt="User logo">
+            <img onclick="toggleUserPopup()" src="<%= locals.user.avatar ? locals.user.avatarURL : "https://cdn.discordapp.com/embed/avatars/1.png"%> " alt="User logo" onerror="this.src='https://cdn.discordapp.com/embed/avatars/1.png'">
 
             <div class="popup popup-hidden" id="userpopup">
                 <div class="popup-content">
@@ -31,5 +35,4 @@
             <%}%>
     </div>
 
-    <a class="navbaroption" href="/admin">Página de Admin</a>
 </header>
