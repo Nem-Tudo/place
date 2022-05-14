@@ -10,7 +10,7 @@ module.exports = {
     },
     canvas: {
         height: 480,
-        width: 480,
+        width: 680,
         allowedColors: [],
         timeout: 30 * 1000
     },
