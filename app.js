@@ -173,7 +173,7 @@ app.use((req, res, next) => {
 
 //manual change
 const playable = {
-    canplay: false,
+    canplay: true,
     message: "[Da pra trocar a msg] Galooo daora"
 }
 
