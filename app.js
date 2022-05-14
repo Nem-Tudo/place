@@ -216,17 +216,17 @@ app.get("/", (req, res) => {
 
 app.get("/place", middlewares.authenticated, (req, res) => {
 
-    if (!functions.canJoin(req.user)) return res.render("pages/joinGuild", { user: req.user, accessAdmin: functions.canAccessAdmin(req.user.discordId)})
+    if (!functions.canJoin(req.user)) return res.render("pages/joinGuild", { user: req.user, accessAdmin: functions.canAccessAdmin(req.user?.discordId)})
 
-    if(!playable.canplay) return res.render("pages/notPlayable", { message: playable.message, user: req.user, accessAdmin: functions.canAccessAdmin(req.user.discordId)})
+    if(!playable.canplay) return res.render("pages/notPlayable", { message: playable.message, user: req.user, accessAdmin: functions.canAccessAdmin(req.user?.discordId)})
 
     res.render("pages/place", { user: req.user, width: config.canvas.width, height: config.canvas.height})
 })
 
 app.get("/admin", middlewares.authenticated, (req, res) => {
-    if (!(config.settings.moderatorUsers.includes(req.user.discordId) || config.settings.adminUsers.includes(req.user.discordId))) return res.render("pages/notAdmin", {user: req.user});
+    if (!(config.settings.moderatorUsers.includes(req.user?.discordId) || config.settings.adminUsers.includes(req.user?.discordId))) return res.render("pages/notAdmin", {user: req.user});
     
-    res.render("pages/admin", { user: req.user, admin: config.settings.adminUsers.includes(req.user.discordId)});
+    res.render("pages/admin", { user: req.user, admin: config.settings.adminUsers.includes(req.user?.discordId)});
 })
 
 
@@ -282,7 +282,7 @@ app.post("/api/pixel", middlewares.authenticated, functions.checkBody([
 
     if (!socket) return res.status(400).send({ message: "400: Invalid socket" });
 
-    const player = await schemas.player.findOne({ discordId: req.user.discordId });
+    const player = await schemas.player.findOne({ discordId: req.user?.discordId });
 
     if (player.banned.banned) return res.status(403).send({ bannned: true, message: "403: You are banned" });
 
@@ -302,7 +302,7 @@ app.post("/api/pixel", middlewares.authenticated, functions.checkBody([
     //timeout
     let playerState;
     if (config.canvas.timeout > 0) {
-        if (!(config.settings.moderatorUsers.includes(req.user.discordId) || config.settings.adminUsers.includes(req.user.discordId))) {
+        if (!(config.settings.moderatorUsers.includes(req.user?.discordId) || config.settings.adminUsers.includes(req.user?.discordId))) {
 
             player.timeout = Date.now() + config.canvas.timeout;
 
@@ -374,7 +374,7 @@ app.get("/api/player", middlewares.authenticated, async (req, res) => {
 
     if (!canvas) return res.status(503).send({ message: "503: Service Unavailable" });
 
-    const player = req.query.id ? await schemas.player.findOne({ discordId: req.query.id }) : await schemas.player.findOne({ discordId: req.user.discordId })
+    const player = req.query.id ? await schemas.player.findOne({ discordId: req.query.id }) : await schemas.player.findOne({ discordId: req.user?.discordId })
 
     if (!player) return res.status(404).send({ message: "404: Player not found" });
 
@@ -423,7 +423,7 @@ app.post("/api/admin/ban", middlewares.authenticated, functions.checkBody([
         }
     }
 ]), async (req, res) => {
-    if(!config.settings.moderatorUsers.includes(req.user.discordId) && !config.settings.adminUsers.includes(req.user.discordId)) return res.status(403).send({ message: "403: You need to be a moderator or admin" });
+    if(!config.settings.moderatorUsers.includes(req.user?.discordId) && !config.settings.adminUsers.includes(req.user?.discordId)) return res.status(403).send({ message: "403: You need to be a moderator or admin" });
     
     const player = await schemas.player.findOne({ discordId: req.body.user });
 
@@ -433,11 +433,11 @@ app.post("/api/admin/ban", middlewares.authenticated, functions.checkBody([
 
     if(config.settings.adminUsers.includes(req.body.user)) return res.status(422).send({ message: "422: You can't ban an admin" });
 
-    if(config.settings.moderatorUsers.includes(req.body.user) && !config.settings.adminUsers.includes(req.user.discordId)) return res.status(422).send({ message: "422: You can't ban a moderator" });
+    if(config.settings.moderatorUsers.includes(req.body.user) && !config.settings.adminUsers.includes(req.user?.discordId)) return res.status(422).send({ message: "422: You can't ban a moderator" });
 
     player.banned.banned = true;
     player.banned.reason = req.body.reason;
-    player.banned.bannedBy = req.user.discordId;
+    player.banned.bannedBy = req.user?.discordId;
     player.banned.bannedAt = Date.now();
 
     const state = await player.save();
@@ -485,7 +485,7 @@ app.delete("/api/admin/ban", middlewares.authenticated, functions.checkBody([
         }
     }
 ]), async (req, res) => {
-    if(!config.settings.moderatorUsers.includes(req.user.discordId) && !config.settings.adminUsers.includes(req.user.discordId)) return res.status(403).send({ message: "403: You need to be a moderator or admin" });
+    if(!config.settings.moderatorUsers.includes(req.user?.discordId) && !config.settings.adminUsers.includes(req.user?.discordId)) return res.status(403).send({ message: "403: You need to be a moderator or admin" });
     
     const player = await schemas.player.findOne({ discordId: req.body.user });
 
@@ -493,7 +493,7 @@ app.delete("/api/admin/ban", middlewares.authenticated, functions.checkBody([
 
     if(!player.banned.banned) return res.status(422).send({ message: "422: Player is not banned" });
 
-    if(config.settings.moderatorUsers.includes(req.body.user) && !config.settings.adminUsers.includes(req.user.discordId)) return res.status(422).send({ message: "422: You can't unban a moderator" });
+    if(config.settings.moderatorUsers.includes(req.body.user) && !config.settings.adminUsers.includes(req.user?.discordId)) return res.status(422).send({ message: "422: You can't unban a moderator" });
 
     player.banned.banned = false;
 
@@ -519,13 +519,13 @@ app.delete("/api/admin/ban", middlewares.authenticated, functions.checkBody([
 app.get("/api/status", middlewares.authenticated, async (req, res) => {
     if (!functions.canJoin(req.user)) return res.status(403).send({ message: "403: You need to be on the following servers: " + config.settings.onlyInGuilds.join(", ") });
     
-    if(!config.settings.moderatorUsers.includes(req.user.discordId) && !config.settings.adminUsers.includes(req.user.discordId)) return res.status(403).send({ message: "403: You need to be a moderator or admin" });
+    if(!config.settings.moderatorUsers.includes(req.user?.discordId) && !config.settings.adminUsers.includes(req.user?.discordId)) return res.status(403).send({ message: "403: You need to be a moderator or admin" });
     
     if(!siteSchema) return res.status(503).send({ message: "503: Service Unavailable" });
 
     const response = {};
 
-    if(config.settings.adminUsers.includes(req.user.discordId)){
+    if(config.settings.adminUsers.includes(req.user?.discordId)){
         response.stats = JSON.parse(JSON.stringify(siteSchema.stats));
         
         response.stats.online = {};
@@ -548,7 +548,7 @@ app.post("/api/admin/eval", middlewares.authenticated, functions.checkBody([
         required: true
     }
 ]), (req, res) => {
-    if(!config.settings.adminUsers.includes(req.user.discordId)) return res.status(403).send({ message: "403: Missing permission" });
+    if(!config.settings.adminUsers.includes(req.user?.discordId)) return res.status(403).send({ message: "403: Missing permission" });
 
     const code = req.body.eval;
 
@@ -570,7 +570,7 @@ app.post("/api/admin/message", middlewares.authenticated, functions.checkBody([
         }
     }
 ]), (req, res) => {
-    if(!config.settings.adminUsers.includes(req.user.discordId)) return res.status(403).send({ message: "403: Missing permission" });
+    if(!config.settings.adminUsers.includes(req.user?.discordId)) return res.status(403).send({ message: "403: Missing permission" });
 
     const message = req.body.message;
 
@@ -583,7 +583,7 @@ app.post("/api/admin/message", middlewares.authenticated, functions.checkBody([
         siteSchema.sentAdminMessages.push({
             user: {
                 tag: req.user.tag,
-                id: req.user.discordId
+                id: req.user?.discordId
             },
             message
         });
