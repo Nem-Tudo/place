@@ -156,7 +156,7 @@ setInterval(async () => {
 
     modified = false;
 
-}, 5 * 1000)
+}, 15 * 1000)
 
 //uses stats
 app.use((req, res, next) => {
