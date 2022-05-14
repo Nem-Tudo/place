@@ -2,8 +2,8 @@ module.exports = {
     port: 1516,
     settings: {
         onlyInGuilds: ["893246472043261983"],
-        moderatorUsers: ["6126514397.01098558"],
-        adminUsers: ["6126514397010.98558", "321684831857672192"]
+        moderatorUsers: ["612651439701098558"],
+        adminUsers: ["612651439701098558", "321684831857672192"]
     },
     database: {
         connectURL: "mongodb+srv://NemTudo:%24%24Gustavo15%24%24@cluster0.3xiug.mongodb.net/NeonPlace?retryWrites=true&w=majority"
