@@ -151,12 +151,14 @@ setInterval(async () => {
     _saving = true;
 
     await canvas.save()
+    await siteSchema.save();
+
 
     _saving = false;
 
     modified = false;
 
-}, 15 * 1000)
+}, 5 * 1000)
 
 //uses stats
 app.use((req, res, next) => {
@@ -164,7 +166,6 @@ app.use((req, res, next) => {
     if(req.originalUrl.startsWith("/api")) return next();
 
     siteSchema.stats.uses++;
-    siteSchema.save();
 
     next()
 })
@@ -338,7 +339,6 @@ app.post("/api/pixel", middlewares.authenticated, functions.checkBody([
     });
 
     siteSchema.stats.placePixeis++;
-    siteSchema.save();
 
     res.status(200).send({ timeout, message: `200: Pixel updated: x: ${req.body.x}, y: ${req.body.y}` });
 })
@@ -464,8 +464,6 @@ app.post("/api/admin/ban", middlewares.authenticated, functions.checkBody([
     siteSchema.markModified("bannedUsers");
     siteSchema.markModified("bannedUsersMessages");
 
-    siteSchema.save();
-
     return res.status(200).send({ message: "200: Player banned", player: state});
     
 })
@@ -589,7 +587,6 @@ app.post("/api/admin/message", middlewares.authenticated, functions.checkBody([
         });
 
         siteSchema.markModified("sentAdminMessages");
-        siteSchema.save();
         
         res.status(200).send({ message: `200: Message sent to ${io.engine.clientsCount} users.`, usersCount: io.engine.clientsCount});
     } catch (error) {
