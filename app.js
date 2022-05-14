@@ -173,8 +173,8 @@ app.use((req, res, next) => {
 
 //manual change
 const playable = {
-    canplay: true,
-    message: "Não disponivel no momento :("
+    canplay: false,
+    message: "[Da pra trocar a msg] Galooo daora"
 }
 
 //configure socket.io
