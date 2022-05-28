@@ -12,7 +12,7 @@ module.exports = {
         height: 480,
         width: 480,
         allowedColors: [],
-        timeout: 30 * 1000
+        timeout: 5 * 1000
     },
     oauth2: {
         clientID: "957266200616919041",
