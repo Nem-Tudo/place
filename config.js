@@ -3,7 +3,7 @@ module.exports = {
     settings: {
         onlyInGuilds: ["893246472043261983"],
         moderatorUsers: ["612651439701098558"],
-        adminUsers: ["612651439701098558", "321684831857672192", "407689546864787466"]
+        adminUsers: ["612651439701098558", "321684831857672192", "407689546864787466", "869710697439842355"]
     },
     database: {
         connectURL: "mongodb+srv://NemTudo:%24%24Gustavo15%24%24@cluster0.3xiug.mongodb.net/NeonPlace?retryWrites=true&w=majority"
