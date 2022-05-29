@@ -174,7 +174,7 @@ app.use((req, res, next) => {
 //manual change
 const playable = {
     canplay: true,
-    message: "[Da pra trocar a msg] Galooo daora"
+    message: "Não é possível participar no momento. Aguarde."
 }
 
 //configure socket.io
@@ -297,7 +297,7 @@ app.post("/api/pixel", middlewares.authenticated, functions.checkBody([
             color: req.body.color
         })
 
-        return res.status(422).send({ message: "422: Color already set" });
+        return res.status(422).send({ message: "422: Color already set", notResetColor: true});
     }
 
     //timeout

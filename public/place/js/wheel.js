@@ -24,12 +24,6 @@ function loadWheel(zoom){
         zoom.onmousemove = function (e) {
             e.preventDefault();
     
-            // const direction = e.pageX < oldx ? "left" : "right";
-            // oldx = e.pageX;
-            
-            // if(direction == "right" && (window.innerWidth - zoom.getBoundingClientRect().left) < window.innerWidth / 2) return;
-            // if(direction == "left" && (window.innerWidth + zoom.getBoundingClientRect().right) > window.innerHeight * 2) return;
-    
             pointX = (e.clientX - start.x);
             pointY = (e.clientY - start.y);
 
@@ -63,4 +57,16 @@ function loadWheel(zoom){
         
         setTransform();
     }
+
+    window.addEventListener("keypress", e => {
+        if(e.keyCode === 114){
+            pointX = 0;
+            pointY = 0;
+            scale = 1;
+
+            zoom.onmousemove = null;
+            zoom.onmouseup = null;
+            setTransform();
+        }
+    })
 }

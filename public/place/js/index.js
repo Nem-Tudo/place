@@ -1,3 +1,4 @@
+let loadingTime = 0;
 let canvas;
 let select;
 let ctx;
@@ -51,7 +52,23 @@ function loadCanvas() {
     }, true);
 }
 
+setInterval(async () => {
 
+    if(window.getComputedStyle(document.querySelector(".loading .spin")).display == "none"){
+        loadingTime = 0;
+    } else {
+        loadingTime++;
+    }
+    if(loadingTime >= 8){
+        const request = await fetch("/api/place").catch(e => {
+            document.querySelector("#customLoadingMessage").innerHTML = "O servidor está indisponível no momento. Tentando reestabelecer conexão...";
+            document.querySelector("#customLoadingMessage").style.display = "block";
+        });
+        
+        if(request?.status === 200) return location.reload();
+
+    } 
+}, 1000);
 
 
 function paint(e) {
@@ -92,7 +109,7 @@ function paint(e) {
     document.querySelector("#coordx").innerText = x;
     document.querySelector("#coordy").innerText = y;
 
-}
+}   
 
 async function draw() {
     if(loadingDraw) return;
@@ -128,12 +145,15 @@ async function draw() {
     });
     loadingDraw = false;
 
-    if (response.status !== 200){
-        ctx.fillStyle = oldColor;
-        ctx.fillRect(selectedPixel.x, selectedPixel.y, 1, 1);
-    }
-
     const responseJson = await response.json();
+
+    if (response.status !== 200){
+        if(responseJson.notResetColor != true){
+            ctx.fillStyle = oldColor;
+            ctx.fillRect(selectedPixel.x, selectedPixel.y, 1, 1);
+        }
+        alert("Ocorreu um erro ao colocar o pixel: " + responseJson.message)
+    }
 
     if(responseJson.timeout){
         timeouted = true;

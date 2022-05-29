@@ -191,7 +191,6 @@ async function executeEval(eval) {
     }
     alert(response.result)
 
-    document.querySelector("#eval").value = "";
 }
 
 async function viewbaninfo(userid, open) {
