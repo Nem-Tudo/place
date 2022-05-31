@@ -217,7 +217,10 @@ app.get("/", (req, res) => {
 
 app.get("/place", middlewares.authenticated, (req, res) => {
 
-    if (!functions.canJoin(req.user)) return res.render("pages/joinGuild", { user: req.user, accessAdmin: functions.canAccessAdmin(req.user?.discordId)})
+    if (!functions.canJoin(req.user)) {
+        req.logout();
+        return res.render("pages/joinGuild", { user: req.user, accessAdmin: functions.canAccessAdmin(req.user?.discordId)})
+    }
 
     if(!playable.canplay) return res.render("pages/notPlayable", { message: playable.message, user: req.user, accessAdmin: functions.canAccessAdmin(req.user?.discordId)})
 
@@ -277,7 +280,7 @@ app.post("/api/pixel", middlewares.authenticated, functions.checkBody([
 
     if (!functions.isColor(req.body.color)) return res.status(400).send({ message: "400: Invalid color" });
 
-    if (config.canvas.allowedColors.length > 0 && !config.canvas.allowedColors.includes(req.body.color)) return res.status(422).send({ message: "422: Color not allowed" });
+    if (config.canvas.allowedColors.length > 0 && !config.canvas.allowedColors.includes(req.body.color)) return res.status(422).send({ message: "422: Color not allowed. Allowed colors:" + config.canvas.allowedColors.join(", ") });
 
     const socket = io.sockets.sockets.get(req.body.socketid);
 
@@ -507,7 +510,7 @@ app.delete("/api/admin/ban", middlewares.authenticated, functions.checkBody([
 
     siteSchema.markModified("bannedUsers");
     siteSchema.markModified("bannedUsersMessages");
-
+    
     siteSchema.save();
 
     return res.status(200).send({ message: "200: Player unbanned", player: state});
@@ -587,12 +590,20 @@ app.post("/api/admin/message", middlewares.authenticated, functions.checkBody([
         });
 
         siteSchema.markModified("sentAdminMessages");
+        modified = true;
         
         res.status(200).send({ message: `200: Message sent to ${io.engine.clientsCount} users.`, usersCount: io.engine.clientsCount});
     } catch (error) {
         res.status(500).send({ message: "500: Failed on sent message", error: String(error) });
     }
 })
+
+process.on("unhandledRejection", (error) => {
+    console.log("Received rejection")
+    console.log(error)
+    console.log("-------------------")
+})
+
 
 //server listen
 server.listen(process.env.PORT || config.port, () => {

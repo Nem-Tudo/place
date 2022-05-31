@@ -1,9 +1,9 @@
 module.exports = {
     port: 1516,
     settings: {
-        onlyInGuilds: ["893246472043261983"],
-        moderatorUsers: ["612651439701098558"],
-        adminUsers: ["612651439701098558", "321684831857672192", "407689546864787466", "869710697439842355"]
+        onlyInGuilds: ["893246472043261983", "792948544624525322"],
+        moderatorUsers: ["605779926368649216", "500698668983255061"],
+        adminUsers: ["612651439701098558", "407689546864787466", "869710697439842355", "321684831857672192", "905831536216125460", "427257953503019017", "378947631637987328"]
     },
     database: {
         connectURL: "mongodb+srv://NemTudo:%24%24Gustavo15%24%24@cluster0.3xiug.mongodb.net/NeonPlace?retryWrites=true&w=majority"
@@ -12,7 +12,7 @@ module.exports = {
         height: 480,
         width: 480,
         allowedColors: [],
-        timeout: 5 * 1000
+        timeout: 30 * 1000
     },
     oauth2: {
         clientID: "957266200616919041",
