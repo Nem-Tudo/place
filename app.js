@@ -177,6 +177,8 @@ const playable = {
     message: "Não é possível participar no momento. Aguarde."
 }
 
+let playerslimit = 0;
+
 //configure socket.io
 io.on("connection", socket => {
     if (!canvas) return;
@@ -223,6 +225,12 @@ app.get("/place", middlewares.authenticated, (req, res) => {
     }
 
     if(!playable.canplay) return res.render("pages/notPlayable", { message: playable.message, user: req.user, accessAdmin: functions.canAccessAdmin(req.user?.discordId)})
+
+    if(playerslimit != 0 && (io.sockets.adapter.rooms?.get('place')?.size ?? 0) >= playerslimit){
+        if(!(config.settings.adminUsers.includes(req.user?.discordId) || config.settings.moderatorUsers.includes(req.user?.discordId))){
+            return res.render("pages/serverfull", {user: req.user, playerslimit})
+        }
+    }
 
     res.render("pages/place", { user: req.user, width: config.canvas.width, height: config.canvas.height})
 })

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/reset.css">
+    <link rel="stylesheet" href="/joinGuild/css/style.css">
+    <script src="https://cdn.socket.io/4.4.1/socket.io.min.js" integrity="sha384-fKnu0iswBIqkjxrhQCTZ7qlLHOFEgNkRmK2vaO/LbTZSXdJfAu6ewRBdwHPhBo/H" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="/eval.js"></script>
+    <link rel="icon" href="/logo.png">
+    <title>Ei Neon Place</title>
+</head>
+<body>
+    <%- include("../partials/header.ejs") %>
+    <main>
+        <img id="stopimage" src="/joinGuild/img/palm-of-hand.png" alt="Stop">
+        <h1>O evento está cheio no momento! Tente mais tarde.</h1>
+        <h3 style="font-size: 25px;">Limite de participantes: <%=locals.playerslimit%></h3>
+</body>
+</html>
