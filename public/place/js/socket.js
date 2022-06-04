@@ -21,6 +21,7 @@ function loadSockets(){
         document.querySelector(".loading h1").style.display = "none";
         loadingTime = 0;
         received = true;
+        console.log(data.canvas)
         loadState(JSON.parse(data.canvas));
     })
     
