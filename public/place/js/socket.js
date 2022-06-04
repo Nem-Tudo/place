@@ -17,6 +17,7 @@ function loadSockets(){
     })
 
     socket.on("canvasState", data => {
+        console.log(data)
         document.querySelector(".loading h1").style.display = "none";
         loadingTime = 0;
         received = true;
