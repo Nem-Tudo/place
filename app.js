@@ -75,20 +75,20 @@ loadCanvas().then(async (_canvas) => {
 async function loadCanvas() {
     let canvas = []
 
-    await schemas.canvas.find().skip(0).limit(10).then((row) => {
-        row.forEach((linha) => {
-            canvas.push(linha.canvas)
-        })
-    })
-    //
-    // for(var range = 0; range < 24; range++){
-    //     await schemas.canvas.find().skip(range * 20).limit(20).then((row) => {
-    //         row.forEach((linha) => {
-    //             canvas.push(linha.canvas)
-    //         })
+    // await schemas.canvas.find().skip(0).limit(10).then((row) => {
+    //     row.forEach((linha) => {
+    //         canvas.push(linha.canvas)
     //     })
-    //     console.log(canvas.length)
-    // }
+    // })
+    //
+    for(var range = 0; range < 24; range++){
+        await schemas.canvas.find().skip(range * 20).limit(20).then((row) => {
+            row.forEach((linha) => {
+                canvas.push(linha.canvas)
+            })
+        })
+        console.log(canvas.length)
+    }
     //
     // if (!canvas) {
     //     canvas = await new schemas.canvas({
@@ -368,7 +368,6 @@ app.post("/api/pixel", middlewares.authenticated, functions.checkBody([
 })
 
 app.get("/api/pixel", middlewares.authenticated, (req, res) => {
-    console.log("aqui")
     if (!canvas) return res.status(503).send({ message: "503: Service Unavailable" });
     const _x = req.query.x
     const _y = req.query.y;
