@@ -66,21 +66,35 @@ loadCanvas().then(async (_canvas) => {
     canvas = _canvas;
 
     io.to("place").emit("canvasState", {
-        canvas: JSON.stringify(canvas.canvas)
+        canvas: JSON.stringify(canvas)
     });
 
     io.emit("reload");
-
 });
 
 async function loadCanvas() {
-    let canvas = await schemas.canvas.findOne({});
+    let canvas = []
 
-    if (!canvas) {
-        canvas = await new schemas.canvas({
-            canvas: []
-        }).save();
+    // await schemas.canvas.find().skip(0).limit(10).then((row) => {
+    //     row.forEach((linha) => {
+    //         canvas.push(linha.canvas)
+    //     })
+    // })
+
+    for(var range = 0; range < 24; range++){
+        await schemas.canvas.find().skip(range * 20).limit(20).then((row) => {
+            row.forEach((linha) => {
+                canvas.push(linha.canvas)
+            })
+        })
+        console.log(canvas.length)
     }
+    //
+    // if (!canvas) {
+    //     canvas = await new schemas.canvas({
+    //         canvas: []
+    //     }).save();
+    // }
 
     if (false) {
         console.log("canvas preserved");
@@ -88,36 +102,36 @@ async function loadCanvas() {
     }
     console.log("generating canvas...");
 
-    const state = await generateCanvas()
+    const state = canvas;
 
-    console.log(`canvas generated! ${state.canvas.length} columns. ${state.canvas[0].length} rows.`);
+    console.log(`canvas generated! ${state.length} columns. ${state[0].length} rows.`);
 
     return state;
 
-    async function generateCanvas() {
-        if (!canvas.canvas) canvas.canvas = [];
-
-        for (let col = 0; col < config.canvas.width; col++) {
-
-            if (!canvas.canvas[col]) canvas.canvas[col] = [];
-
-            for (let row = 0; row < config.canvas.height; row++) {
-
-                if (!canvas.canvas[col][row]) {
-
-                    canvas.canvas[col][row] = {
-                        color: "#ffffff",
-                        user: null,
-                        timestamp: Date.now()
-                    }
-                }
-
-            }
-
-        }
-
-        return await canvas.save()
-    }
+    // async function generateCanvas() {
+    //     if (!canvas) canvas.canvas = [];
+    //
+    //     for (let col = 0; col < config.canvas.width; col++) {
+    //
+    //         if (!canvas.canvas[col]) canvas.canvas[col] = [];
+    //
+    //         for (let row = 0; row < config.canvas.height; row++) {
+    //
+    //             if (!canvas.canvas[col][row]) {
+    //
+    //                 canvas.canvas[col][row] = {
+    //                     color: "#ffffff",
+    //                     user: null,
+    //                     timestamp: Date.now()
+    //                 }
+    //             }
+    //
+    //         }
+    //
+    //     }
+    //
+    //     return await canvas.save()
+    // }
 }
 
 //siteSchema
@@ -186,7 +200,7 @@ io.on("connection", socket => {
     if(socket.request._query["canvaspage"] == "true") socket.join("place")
 
     socket.emit("canvasState", {
-        canvas: JSON.stringify(canvas.canvas),
+        canvas: JSON.stringify(canvas),
     });
 
     socket.emit("inPlace", {
@@ -195,7 +209,7 @@ io.on("connection", socket => {
 
     socket.on("getCanvasState", data => {
         socket.emit("canvasState", {
-            canvas: JSON.stringify(canvas.canvas)
+            canvas: JSON.stringify(canvas)
         })
     })
 })
@@ -300,7 +314,8 @@ app.post("/api/pixel", middlewares.authenticated, functions.checkBody([
 
     if (player.timeout != 0 && player.timeout > Date.now()) return res.status(403).send({ retryAfter: Math.abs(Date.now() - player.timeout), message: `403: You need wait ${Math.abs(Date.now() - player.timeout)}ms before you can place a new pixel.` });
 
-    if (canvas.canvas[req.body.x][req.body.y].color === req.body.color) {
+    console.log(canvas[req.body.x][req.body.y])
+    if (canvas[req.body.x][req.body.y].color === req.body.color) {
 
         socket.emit("pixelUpdate", {
             x: req.body.x,
@@ -327,9 +342,9 @@ app.post("/api/pixel", middlewares.authenticated, functions.checkBody([
 
     if(!socket.rooms.has("place")) socket.join("place")
 
-
+    let schema = schemas.canvas.findOne({canvas: canvas[req.body.x]})
     //place pixel
-    canvas.canvas[req.body.x][req.body.y] = {
+    schema[req.body.y] = {
         color: req.body.color,
         user: {
             tag: req.user.tag,
@@ -338,8 +353,7 @@ app.post("/api/pixel", middlewares.authenticated, functions.checkBody([
         timestamp: Date.now()
     };
 
-    canvas.markModified(`canvas.${req.body.x}.${req.body.y}`);
-    modified = true;
+    await schema.save()
 
     
 
