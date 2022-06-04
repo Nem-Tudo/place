@@ -244,6 +244,7 @@ async function showPixelInfo(x, y){
     document.querySelector(".pixelInfo .position p").innerText = `X: ${x} Y: ${y}`;
     pixelInfo.classList.remove("pixelInfo-hidden");
 
+    console.log("aqui")
     const request = await fetch(`/api/pixel?x=${x}&y=${y}`);
 
     if(request.status !== 200) return closePixelInfo(pixelInfo);

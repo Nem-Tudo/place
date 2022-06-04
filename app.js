@@ -75,20 +75,20 @@ loadCanvas().then(async (_canvas) => {
 async function loadCanvas() {
     let canvas = []
 
-    // await schemas.canvas.find().skip(0).limit(10).then((row) => {
-    //     row.forEach((linha) => {
-    //         canvas.push(linha.canvas)
-    //     })
-    // })
-
-    for(var range = 0; range < 24; range++){
-        await schemas.canvas.find().skip(range * 20).limit(20).then((row) => {
-            row.forEach((linha) => {
-                canvas.push(linha.canvas)
-            })
+    await schemas.canvas.find().skip(0).limit(10).then((row) => {
+        row.forEach((linha) => {
+            canvas.push(linha.canvas)
         })
-        console.log(canvas.length)
-    }
+    })
+    //
+    // for(var range = 0; range < 24; range++){
+    //     await schemas.canvas.find().skip(range * 20).limit(20).then((row) => {
+    //         row.forEach((linha) => {
+    //             canvas.push(linha.canvas)
+    //         })
+    //     })
+    //     console.log(canvas.length)
+    // }
     //
     // if (!canvas) {
     //     canvas = await new schemas.canvas({
@@ -164,7 +164,7 @@ setInterval(async () => {
 
     _saving = true;
 
-    await canvas.save()
+    // await canvas.save()
     await siteSchema.save();
 
 
@@ -314,7 +314,6 @@ app.post("/api/pixel", middlewares.authenticated, functions.checkBody([
 
     if (player.timeout != 0 && player.timeout > Date.now()) return res.status(403).send({ retryAfter: Math.abs(Date.now() - player.timeout), message: `403: You need wait ${Math.abs(Date.now() - player.timeout)}ms before you can place a new pixel.` });
 
-    console.log(canvas[req.body.x][req.body.y])
     if (canvas[req.body.x][req.body.y].color === req.body.color) {
 
         socket.emit("pixelUpdate", {
@@ -342,9 +341,11 @@ app.post("/api/pixel", middlewares.authenticated, functions.checkBody([
 
     if(!socket.rooms.has("place")) socket.join("place")
 
-    let schema = schemas.canvas.findOne({canvas: canvas[req.body.x]})
-    //place pixel
-    schema[req.body.y] = {
+    let schema = await schemas.canvas.findOne({canvas: canvas[req.body.x]})
+
+    console.log(schema)
+    console.log(schema['canvas'][req.body.y])
+    schema['canvas'][req.body.y] = {
         color: req.body.color,
         user: {
             tag: req.user.tag,
@@ -353,9 +354,7 @@ app.post("/api/pixel", middlewares.authenticated, functions.checkBody([
         timestamp: Date.now()
     };
 
-    await schema.save()
-
-    
+    await schema.updateOne(schema)
 
     io.to("place").emit("pixelUpdate", {
         x: req.body.x,
@@ -369,6 +368,7 @@ app.post("/api/pixel", middlewares.authenticated, functions.checkBody([
 })
 
 app.get("/api/pixel", middlewares.authenticated, (req, res) => {
+    console.log("aqui")
     if (!canvas) return res.status(503).send({ message: "503: Service Unavailable" });
     const _x = req.query.x
     const _y = req.query.y;
@@ -387,9 +387,9 @@ app.get("/api/pixel", middlewares.authenticated, (req, res) => {
     res.status(200).send({
         x,
         y,
-        color: canvas.canvas[x][y].color,
-        user: canvas.canvas[x][y].user,
-        timestamp: canvas.canvas[x][y].timestamp
+        color: canvas[x][y].color,
+        user: canvas[x][y].user,
+        timestamp: canvas[x][y].timestamp
     })
 })
 
